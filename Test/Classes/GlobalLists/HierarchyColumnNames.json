@@ -1,0 +1,10 @@
+{
+  "Hierarchy" : [
+    "Exp",
+    "Site",
+    "Hole",
+    "Core",
+    "Type",
+    "Section"
+  ]
+}
