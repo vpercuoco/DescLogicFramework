@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20200722224054_AddedMeasurements.cs" />
+    <Compile Remove="Migrations\20200722224054_AddedMeasurements.Designer.cs" />
+    <Compile Remove="Migrations\20200723162149_RefinedDataPropertyinLithologicDescriptions.cs" />
+    <Compile Remove="Migrations\20200723162149_RefinedDataPropertyinLithologicDescriptions.Designer.cs" />
+    <Compile Remove="Migrations\20200723165550_RefinedDataPropertyinLithologicDescriptions.cs" />
+    <Compile Remove="Migrations\20200723165550_RefinedDataPropertyinLithologicDescriptions.Designer.cs" />
+    <Compile Remove="Migrations\20200723173913_RefinedDataPropertyinLithologicDescriptions.cs" />
+    <Compile Remove="Migrations\20200723173913_RefinedDataPropertyinLithologicDescriptions.Designer.cs" />
+    <Compile Remove="Migrations\20200723174058_RefinedDataPropertyinLithologicDescriptions.cs" />
+    <Compile Remove="Migrations\20200723174058_RefinedDataPropertyinLithologicDescriptions.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

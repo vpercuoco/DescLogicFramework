@@ -4,6 +4,7 @@ using System.Text;
 using System.Collections;
 using System.Data;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace DescLogicFramework
 {
@@ -99,12 +100,16 @@ namespace DescLogicFramework
         /// <returns></returns>
         private Cache<int, Measurement> SetMeasurementLithologicDescription(ref Cache<int, Measurement> Measurements, ref Cache<string, LithologicDescription> Descriptions)
         {
+
             foreach (KeyValuePair<int, Measurement> measurement in Measurements.GetCollection())
             {
                 //For offset-type measurements.
                 if (measurement.Value.StartOffset.Offset != -1 && measurement.Value.StartOffset.Offset == measurement.Value.EndOffset.Offset)
                 {
-                    var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value));
+                    //The original way, which works
+                    var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value)).ToList();
+
+
                     int recordCount = matchingDescriptions.Count();
 
                     //Event firing when more than one description is returned
@@ -125,8 +130,15 @@ namespace DescLogicFramework
                 //For interval-type measurements
                 else if (measurement.Value.StartOffset.Offset != -1 && measurement.Value.EndOffset.Offset != -1)
                 {
-                    var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value));
+                   
+                    //The original way, which works
+                    var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value)).ToList();
+
+                    
+
                     int recordCount = matchingDescriptions.Count();
+
+
 
                     //Event firing when more than one description is returned
                     /*if (recordCount > 1 && matchingDescriptions.First().Key != null)
@@ -172,6 +184,7 @@ namespace DescLogicFramework
                     {
                         //Find which subinterval of the description the measurement appears in, by passing the measurement's offset
                         measurement.Value.LithologicSubinterval = measurement.Value.LithologicDescription.GetSubinterval(measurement.Value);
+                        
                     }
                     catch (Exception ex)
                     {

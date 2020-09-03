@@ -6,6 +6,7 @@ using System.Data;
 using System.ComponentModel;
 using System.Configuration;
 
+/*
 namespace DescLogicFramework.DataAccess
 
 {
@@ -74,7 +75,7 @@ namespace DescLogicFramework.DataAccess
                 //query = string.Format("INSERT INTO iodp.Results (Id, Myfilename, Mysheetname, Mycolumnname, Result) VALUES({0},'{1}','{2}','{3}','{4}')", dr["ID"], dr["Myfilename"], dr["Mysheetname"], dr["Mycolumnname"], dr["Result"]);
                 cmd.CommandText = query;
                 cmd.ExecuteNonQuery();
-                    */
+                    
 
                 }
 
@@ -166,3 +167,4 @@ namespace DescLogicFramework.DataAccess
         #endregion
     }
 }
+*/

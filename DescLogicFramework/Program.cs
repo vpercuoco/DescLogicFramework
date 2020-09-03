@@ -7,83 +7,39 @@ using System.Threading;
 using System.Configuration;
 using System.ComponentModel.Design;
 
+
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
-
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Transactions;
 
 namespace DescLogicFramework
 {
     public class Program
     {
+
+
         static void Main(string[] args)
         {
 
             Console.WriteLine("Starting up at " + DateTime.Now.ToString());
-            
-         /*   var configfile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-           
-
-            
-            ConfigurationManager.RefreshSection("appSettings");
-            ConfigurationManager.RefreshSection("connectionStrings");
-            var s1 = ConfigurationManager.AppSettings;
-            var s2 = ConfigurationManager.ConnectionStrings;
-            */
 
             var conn = ConfigurationManager.ConnectionStrings["DBconnection"];
 
+            ProgramSettings.SendDataToDataBase = true;
 
-
-            //  var s3 = s1["MySetting"];
-           // ServiceContainer sc = new ServiceContainer();
-           // sc.a
-            ProgramSettings.SendDataToDataBase = false;
-
-            //var x = new TestServices(new ILogger());
+         
             ProgramWorkFlowHandler p = new ProgramWorkFlowHandler();
             Console.WriteLine("Program finished at " + DateTime.Now.ToString());
         }
-
-
-        //I am just going to test to see if I can add in services through dependency injection similar to ASP.NET
-       /*
-        *public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddSingleton<ILogger, Logger>();
-
-        }
-        */
     }
 
-    /*
-    public interface ILogger
-    {
-        public void Log(string message);
-    }
-    public class Logger : ILogger
-    {
-        public void Log(string message)
-        {
-            Console.WriteLine("The Logger service is working properly");
-        }
-            
-    }
-    public class TestServices
-    {
-        private readonly ILogger _logger;
-        public TestServices(ILogger logger)
-        {
-            _logger = logger;
-        }
-    }
-
-    */
 
     static class ProgramSettings
     {
         public static bool SendDataToDataBase { get; set; } = false;
     }
-    
+
 
     /// <summary>
     /// 
@@ -112,13 +68,13 @@ namespace DescLogicFramework
                 expedition = "X" + expedition;
 
                 //Create a batch of description csv files
-                FileSegregator descriptionFileCollection = new FileSegregator();
+                FileCollection descriptionFileCollection = new FileCollection();
 
                 descriptionFileCollection.AddFiles(@"C:\Users\percuoco\Desktop\AGU2019\AGU2019\" + expedition + @"\output\extracted_csv", "*.csv");
                 descriptionFileCollection.ExportDirectory = ConfigurationManager.AppSettings["ExportDirectory"] + expedition + @"\Lithology\";
                 descriptionFileCollection.Filenames.RemoveAll(x => !x.ToLower().Contains("sediment_macroscopic"));
 
-                FileSegregator measurementFileCollection = new FileSegregator();
+                FileCollection measurementFileCollection = new FileCollection();
 
                 measurementFileCollection.AddFiles(@"C:\Users\percuoco\Desktop\AGU2019\AGU2019\" + expedition + @"\output\track_data", "*.csv");
                 measurementFileCollection.ExportDirectory = ConfigurationManager.AppSettings["ExportDirectory"] + expedition + @"\Measurements\";
@@ -128,16 +84,36 @@ namespace DescLogicFramework
                 this.OnBatchProcessCompleted(this, new BatchProcessCompleteEventArgs(expedition));
             }
             while (expedition != "E") ;
+
+           
         }
-        public ProgramWorkFlowHandler(FileSegregator DescriptionFileCollection, FileSegregator MeasurementFileCollection)
+        public ProgramWorkFlowHandler(FileCollection DescriptionFileCollection, FileCollection MeasurementFileCollection)
         {
             if (DescriptionFileCollection.ExportDirectory != null && MeasurementFileCollection.ExportDirectory != null )
             {
                 ProcessData(DescriptionFileCollection, MeasurementFileCollection);
             }
         }
-       
-        private void ProcessData( FileSegregator DescriptionFileCollection, FileSegregator MeasurementFileCollection)
+
+
+        private DescDBContext AddToContext<TEntity>(DescDBContext context, IEnumerable<TEntity> entity, int count, int commitCount, bool recreateContext) where TEntity : class
+        {
+            context.AddRange(entity);
+            
+
+            if (count % commitCount == 0)
+            {
+                context.SaveChanges();
+                if (recreateContext)
+                {
+                    context.Dispose();
+                    context = new DescDBContext();
+                }
+            }
+
+            return context;
+        }
+        private void ProcessData( FileCollection DescriptionFileCollection, FileCollection MeasurementFileCollection)
         {
 
             foreach (string fileName in DescriptionFileCollection.Filenames)
@@ -153,11 +129,37 @@ namespace DescLogicFramework
 
             if (ProgramSettings.SendDataToDataBase)
             {
-                (new DBLithologyWorkFlowHandler()).SendDataTableToDatabase(lithologyCache);
+                    DescDBContext context = null;
+                    try
+                    {
+                        context = new DescDBContext();
+                        //context.Configuration.AutoDetectChangesEnabled = false;
+                        
+                        int count = 0;
+
+                    var descriptionList = lithologyCache.GetCollection().Values.Where(x => !string.IsNullOrEmpty(x.LithologicID));
+
+                    for (int i = 0; i < descriptionList.Count(); i=i+100)
+                    {
+                        var entityToInsert = descriptionList.Skip(i).Take(100).ToList();
+                        count = 100;
+                        context = AddToContext(context, entityToInsert, count, 100, true);
+                    }
+                        context.SaveChanges();
+                    }
+                    finally
+                    {
+                        if (context != null)
+                            context.Dispose();
+                    }
             }
 
             var measurementWorkFlowHandler = new CSVMeasurementWorkFlowHandler();
-            var singleMeasurementFile = new FileSegregator();
+            var singleMeasurementFile = new FileCollection();
+
+
+
+            //Theh Load Measurements
 
             foreach (string path in MeasurementFileCollection.Filenames)
             {
@@ -172,11 +174,34 @@ namespace DescLogicFramework
 
                 if (ProgramSettings.SendDataToDataBase)
                 {
-                     (new DBMeasurementWorkFlowHandler()).SendDataTableToDatabase(associatedMeasurementCache);
+                        DescDBContext context = null;
+                        try
+                        {
+                            context = new DescDBContext();
+                            //context.Configuration.AutoDetectChangesEnabled = false;
+
+                        int count = 0;
+                        var descriptionList = associatedMeasurementCache.GetCollection().Values.Where(x => x.LithologicSubID.HasValue);
+                        for (int i = 0; i < descriptionList.Count(); i = i + 100)
+                        {
+                            var entityToInsert = descriptionList.Skip(i).Take(100);
+                            count = 100;
+                            context = AddToContext(context, entityToInsert, count, 100, true);
+                        }
+
+                        context.SaveChanges();
+                        }
+                        finally
+                        {
+                            if (context != null)
+                                context.Dispose();
+                        }
+
                 }
 
                 measurementWorkFlowHandler.ExportDirectory = MeasurementFileCollection.ExportDirectory;
                 measurementWorkFlowHandler.ExportCache(associatedMeasurementCache);
+
 
                 measurementCache.Dispose();
                 measurementCache = null;
@@ -184,8 +209,13 @@ namespace DescLogicFramework
                 associatedMeasurementCache = null;
             }
 
+
+            
+
             Console.WriteLine("Finished processing measurement file at: " + DateTime.Now.ToString());
         }
+
+
     }
 
 

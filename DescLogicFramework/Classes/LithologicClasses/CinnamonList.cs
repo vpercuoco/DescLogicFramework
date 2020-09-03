@@ -29,7 +29,7 @@ namespace DescLogicFramework
         public CinnamonList(string listName)
         {
             ListName = listName;
-            string jsonFile = File.ReadAllText(@"C:\Users\percuoco\source\repos\Test\Test\Classes\GlobalLists\CinnamonLists.json");
+            string jsonFile = File.ReadAllText(@"C:\Users\percuoco\source\repos\DescLogicFramework\DescLogicFramework\Classes\GlobalLists\CinnamonLists.json");
             //not sure why dynamic is used here
             dynamic json = JObject.Parse(jsonFile);
             var listParameters = json[listName];

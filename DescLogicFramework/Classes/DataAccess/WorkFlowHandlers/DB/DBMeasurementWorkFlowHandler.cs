@@ -69,10 +69,10 @@ namespace DescLogicFramework.DataAccess
 
 
             DataTable dt = this.ConvertToDatabaseSchema(MeasurementCache);
-            DBReader dbConnector = new DBReader();
+            //DBReader dbConnector = new DBReader();
             try
             {
-                dbConnector.WriteData(dt, "DATAMINE.dbo.measurements");
+               // dbConnector.WriteData(dt, "DATAMINE.dbo.measurements");
                 return true;
             }
             catch (Exception)

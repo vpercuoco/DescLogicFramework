@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace DescLogicFramework
@@ -7,6 +10,8 @@ namespace DescLogicFramework
     /// <summary>
     /// An object used to identify a core section.
     /// </summary>
+    /// 
+    [Owned]
     public class SectionInfo : IEquatable<SectionInfo>
     {
         #region Fields
@@ -21,14 +26,27 @@ namespace DescLogicFramework
         #endregion
 
         #region Properties
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid ID { get; set; }
         public string Expedition{ get {return _expedition;} set {_expedition = value.ToString(); }}
         public string Site{ get{return _site;} set{ _site = value.ToString(); }}
         public string Hole{ get{ return _hole;} set{_hole = value.ToString(); }}
         public string Core{ get{ return _core;} set{_core = value.ToString(); }}
         public string Type{ get{return _type;} set{_type = value.ToString(); }}
         public string Section{ get{ return _section;} set{ _section = value.ToString(); }}
+
+
         public string SampleID{ get{ return _sampleID;} set{ _sampleID = value; }}
-        public int SectionTextID {get {return _sectionTextID; }}
+
+        //The DatabaseGeneratedOption.None attribute prevents EF from creating autoincremented values for this property
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int SectionTextID { get { return _sectionTextID; } set { _sectionTextID = value; } }
+
+
+
+
         #endregion
 
         /// <summary>

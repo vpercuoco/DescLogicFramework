@@ -12,7 +12,7 @@ namespace DescLogicFramework.DataAccess
     /// </summary>
     public class CSVMeasurementWorkFlowHandler : DataFileWorkFlowHandler<Measurement>, IWorkFlowHandler<int, Measurement>
     {
-        public FileSegregator FileCollection { get; set; }
+        public FileCollection FileCollection { get; set; }
 
         public string ExportFileName { get; set; }
         public string ExportDirectory { get; set; }

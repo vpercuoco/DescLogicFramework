@@ -13,9 +13,6 @@ namespace DescLogicFramework
     {
         private Cache<int, Measurement> _measurements = new Cache<int, Measurement>();
 
-        public MeasurementsConvertor()
-        {
-        }
         public Cache<int, Measurement> Convert(IODPDataTable dt)
         {
             //count could be 0

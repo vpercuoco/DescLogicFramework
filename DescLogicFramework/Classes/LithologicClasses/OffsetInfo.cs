@@ -11,21 +11,16 @@ namespace DescLogicFramework
     public class OffsetInfo : IEquatable<OffsetInfo>
     {
         /// <summary>
-        /// Default value of an offset before it has been assigned.
-        /// </summary>
-        private double _offset = -1;
-       
-        /// <summary>
         /// The offset (cm) on a section
         /// </summary>
-        public double Offset { get {return _offset;} set {_offset = value;} }
+        public double Offset { get; set; } = -1;
 
         /// <summary>
         /// Creates a new OffsetInfo object
         /// </summary>
         public OffsetInfo()
         {
-            this.SectionInfo = new SectionInfo();
+           SectionInfo = new SectionInfo();
         }
         /// <summary>
         /// The section information from which the offset is derived.

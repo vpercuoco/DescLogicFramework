@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
-
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace DescLogicFramework
 {
@@ -11,35 +12,103 @@ namespace DescLogicFramework
     /// </summary>
     public class Measurement : Interval
     {
+        #region EFCoreProperties
+
+        [Key]
+        public Guid ID { get; set; }
+      
+        public List<MeasurementColumnValuePair> Data { get; set; } = new List<MeasurementColumnValuePair>();
+
+        [MaxLength(50)]
+        [Column(TypeName = "varchar(50)")]
+        public string LithologicID { get; set; }
+
+        public int? LithologicSubID { get; set; }
+
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(100)")]
+        public string InstrumentReport { get; set; } = "";
+
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(100)")]
+        public string InstrumentSystem { get; set; } = "";
+
+        #endregion
+
+        //[MaxLength(50)]
+        //[Column(TypeName = "int")]
+        [NotMapped]
+        public LithologicSubinterval LithologicSubinterval
+        {
+            get { return _lithologicSubInterval; }
+            set
+            {
+                _lithologicSubInterval = value;
+
+                if (value != null)
+                {
+                    this.LithologicSubID = value.LithologicSubID;
+                    foreach (var item in this.Data)
+                    {
+                        item.LithologicSubID = value.LithologicSubID;
+                    }
+                }
+            }
+        }
+
+        [NotMapped]
+        private DataRow _dataRow;
+
         /// <summary>
         /// The datarow of the Measurement within an IODP LORE Report.
         /// </summary>
-        public DataRow DataRow { get; set; }
+        /// 
+        [NotMapped]
+        public DataRow DataRow
+        {
+            get { return _dataRow; }
+            set
+            {
+                _dataRow = value;
 
-        
+                foreach (DataColumn column in value.Table.Columns)
+                {
+
+                    Data.Add(new MeasurementColumnValuePair() { ColumnName = column.ColumnName, Value = value[column].ToString() });
+                }
+            }
+        }
+
+
         /// <summary>
         /// A lithologic description in which this Measurement was taken.
         /// </summary>
-        public LithologicDescription LithologicDescription { get; set; }
+        [NotMapped]
+        public LithologicDescription LithologicDescription {
+            get { return _lithologicDescription; } 
+            set { _lithologicDescription = value ;
+                if (value != null)
+                {
+                    this.LithologicID = value.LithologicID;
+                    foreach (var item in this.Data)
+                    {
+                        item.LithologicID = value.LithologicID;
+                    }
+                } 
+            } 
+        }
 
-        /// <summary>
-        /// The subinterval of the the description in which the Measurement most closely lies.
-        /// </summary>
-        public LithologicSubinterval LithologicSubinterval { get; set; }
+        [NotMapped]
+        private LithologicDescription _lithologicDescription { get; set; }
 
-        public string InstrumentReport { get; set; } = "";
-        public string InstrumentSystem { get; set; } = "";
+        [NotMapped]
+        private LithologicSubinterval _lithologicSubInterval { get; set; }
 
-
-        /// <summary>
-        /// Creates a new Measurement object
-        /// </summary>
         public Measurement()
-        {  
+        {
             StartOffset = new OffsetInfo();
             EndOffset = new OffsetInfo();
             SectionInfo = new SectionInfo();
-            
         }
 
         /// <summary>
@@ -49,7 +118,6 @@ namespace DescLogicFramework
         public Measurement(Measurement measurement) : this()
         {
             SectionInfo = measurement.SectionInfo;
-
             StartOffset = measurement.StartOffset;
             EndOffset = measurement.EndOffset;
             DataRow = measurement.DataRow;

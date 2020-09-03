@@ -14,7 +14,7 @@ namespace DescLogicFramework.DataAccess
     public class CSVLithologyWorkflowHandler : DataFileWorkFlowHandler<LithologicDescription>, IWorkFlowHandler<string, LithologicDescription>
     {
 
-        public FileSegregator FileCollection { get; set; }
+        public FileCollection FileCollection { get; set; }
 
         public string ExportFileName {get; set;}
         public string ExportDirectory { get; set; }

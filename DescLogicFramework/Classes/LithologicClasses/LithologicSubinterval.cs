@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
+
 
 namespace DescLogicFramework
 {
@@ -9,16 +11,27 @@ namespace DescLogicFramework
     /// </summary>
     public class LithologicSubinterval : Interval
     {
-        private int _lithologicSubID;
-        public int LithologicSubID { get { return _lithologicSubID; } set { _lithologicSubID = value; } }
+        [Key]
+        public Guid ID { get; set; }
+
+        public int? LithologicSubID { get; set; }
+
+
+        //I need to reference the parent description for Entity Framework to work
+        public LithologicDescription LithologicDescription {get; set;}
+
+        public LithologicSubinterval()
+        {
+
+        }
 
         /// <summary>
         /// Creates a new Lithologic Subinterval
         /// </summary>
-        /// <param name="ID">An indentication number for the subinterval</param>
-        public LithologicSubinterval(int ID)
+        /// <param name="ID">An identification number for the subinterval</param>
+        public LithologicSubinterval(int subID)
         {
-            this._lithologicSubID = ID;
+            this.LithologicSubID = subID;
 
             this.StartOffset = new OffsetInfo();
             this.EndOffset = new OffsetInfo();

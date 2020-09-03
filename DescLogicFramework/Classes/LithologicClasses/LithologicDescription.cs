@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Data;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DescLogicFramework
 {
@@ -10,24 +12,71 @@ namespace DescLogicFramework
     /// <summary>
     /// Represents a single lithologic description over a depth interval.
     /// </summary>
-    public class LithologicDescription: Interval
+    public class LithologicDescription : Interval
     {
- 
-        //Default resolution of 1cm
-        private double _resolution = 1;
-        private List<LithologicSubinterval> _lithologicSubintervals;
 
-        public DataRow DataRow { get; set; }
+        #region EFCoreProperties
+        [Key]
+        [MaxLength(50)]
+        [Column(TypeName = "varchar(50)")]
         public string LithologicID { get; set; } = "-1";
 
-
         //MetaData from the imported Descklogic ExcelFiles
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(100)")]
         public string DescriptionReport { get; set; } = "";
-        public string DescriptionTab { get; set; } = "";
-        public string DescriptionGroup { get; set; } = "";
-        public string DescriptionType { get; set; } = "";
-     
 
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(100)")]
+        public string DescriptionTab { get; set; } = "";
+
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(100)")]
+        public string DescriptionGroup { get; set; } = "";
+
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(100)")]
+        public string DescriptionType { get; set; } = "";
+
+        public List<DescriptionColumnValuePair> Data { get; set; } = new List<DescriptionColumnValuePair>();
+
+        #endregion
+
+
+        // [Key]
+        //  public int ID { get; set; }
+
+        [NotMapped]
+        private DataRow _dataRow;
+
+        //Default resolution of 1cm
+        [NotMapped]
+        private double _resolution = 1;
+
+        public List<LithologicSubinterval> LithologicSubintervals
+        {
+            get { return _lithologicSubintervals; }
+
+            set { _lithologicSubintervals = value; }
+
+        }
+
+        private List<LithologicSubinterval> _lithologicSubintervals;// = new List<LithologicSubinterval>();
+
+
+        [NotMapped]
+        public DataRow DataRow {
+            get { return _dataRow; }
+            set {
+                _dataRow = value;
+
+                foreach (DataColumn column in value.Table.Columns)
+                {
+                    
+                    Data.Add(new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = value[column].ToString() });
+                }
+            }
+        }
 
         /// <summary>
         /// Instantiates a new Lithologic Description
@@ -40,10 +89,8 @@ namespace DescLogicFramework
 
             EndOffset = new OffsetInfo();
             EndOffset.SectionInfo = new SectionInfo();
-            
+
             _lithologicSubintervals = new List<LithologicSubinterval>();
-            
-            
         }
         /// <summary>
         /// Instantiates a new Lithologic Description 
@@ -52,7 +99,7 @@ namespace DescLogicFramework
         public LithologicDescription(string SampleID) : this()
         {
             SectionInfo.ParseSampleID(SampleID); //At this point I need to reject the file if the sample iD says something like "No Data"
-            _lithologicSubintervals = new List<LithologicSubinterval>();
+          //  DescriptionSectionInfo = this.SectionInfo;
         }
 
         /// <summary>
@@ -64,70 +111,22 @@ namespace DescLogicFramework
         {
 
             LithologicSubinterval query = _lithologicSubintervals.FirstOrDefault(z => z.Contains(interval));
-
-
-            /*//Create subintervals then rerun query::::This was my attempt to make it so a bunch of subintervals were not generated which would never be used, but it
-             * didn't work correctly.
-            if (query == null)
-            {
-             int firstSubIntervalID = (int)Math.Floor((interval.StartOffset.Offset - this.StartOffset.Offset) / _resolution);
-             int lastSubIntervalID = (int)Math.Floor((interval.EndOffset.Offset - this.StartOffset.Offset) / _resolution);
-
-                if (firstSubIntervalID != lastSubIntervalID)
-                {
-                    for (int i = firstSubIntervalID; i <= lastSubIntervalID; i++)
-                    {
-                        CreateSubInterval(i);
-                    }
-                }
-            }
-
-            query = _lithologicSubintervals.FirstOrDefault(z => z.Contains(interval)); */
             return query;
         }
 
-        /// <summary>
-        /// Sets the unique identification string for a Lithologic Description
-        /// </summary>
-        public void SetLithologicID()
-        {
-            LithologicIDGenerator generator = new LithologicIDGenerator();
-            LithologicID = generator.GenerateID(this);
-        }
-
-        [Obsolete]
-        public void CreateSubInterval(int ID)
-        {
-            LithologicSubinterval subinterval = new LithologicSubinterval(ID);
-            subinterval.SectionInfo = this.SectionInfo;
-            subinterval.StartOffset.SectionInfo = this.SectionInfo;
-            subinterval.EndOffset.SectionInfo = this.SectionInfo;
-
-            subinterval.StartOffset.Offset = this.StartOffset.Offset + _resolution * (ID - 1);
-            subinterval.EndOffset.Offset = this.StartOffset.Offset + _resolution * ID;
-            _lithologicSubintervals.Add(subinterval);
-        }
-
-        /// <summary>
-        /// Determines the number to subintervals to create within a Lithologic Description.
-        /// </summary>
-        /// <returns></returns>
-        private int CountSubintervals()
-        {
-            return (int)Math.Ceiling((this.EndOffset.Offset - this.StartOffset.Offset) / _resolution);
-   
-        }
 
         /// <summary>
         /// Creates a collection of Lithologic Subintervals of a specific resolution.
         /// </summary>
         public void GenerateSubintervals()
         {
-            int count = this.CountSubintervals();
+            int count = (int)Math.Ceiling((this.EndOffset.Offset - this.StartOffset.Offset) / _resolution);
+
             for (int i = 1; i <= count; i++)
             {
                 LithologicSubinterval subinterval = new LithologicSubinterval(i);
                 subinterval.SectionInfo = this.SectionInfo;
+                subinterval.LithologicDescription = this;
                 subinterval.StartOffset.SectionInfo = this.SectionInfo;
                 subinterval.EndOffset.SectionInfo = this.SectionInfo;
 

@@ -5,7 +5,7 @@ using System.IO;
 using System.Data;
 using System.Text.RegularExpressions;
 using CsvHelper;
-
+using System.Globalization;
 
 namespace DescLogicFramework.DataAccess
 {
@@ -25,7 +25,7 @@ namespace DescLogicFramework.DataAccess
             {
                 using (StreamReader reader = new StreamReader(ReadPath))
                 {
-                    using (CsvReader csvReader = new CsvReader(reader))
+                    using (CsvReader csvReader = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
                         using (var dr = new CsvDataReader(csvReader))
                         {
@@ -42,7 +42,7 @@ namespace DescLogicFramework.DataAccess
         {
             using (StreamWriter writer = new StreamWriter(WritePath))
             {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
+                using (CsvWriter csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
                     //Write headers
                     foreach (DataColumn column in dt.Columns)
@@ -59,7 +59,7 @@ namespace DescLogicFramework.DataAccess
                             csvWriter.WriteField(dr[i]);
                         }
                         csvWriter.NextRecord();
-                    }  
+                    }
                 }
                 
                // writer.Close();

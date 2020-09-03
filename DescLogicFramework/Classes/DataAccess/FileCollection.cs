@@ -9,29 +9,28 @@ namespace DescLogicFramework
     /// <summary>
     /// Class to maintain a collection of file paths.
     /// </summary>
-    public class FileSegregator
+    public class FileCollection
     {
-        private List<string> _filenames;
         public string ExportDirectory { get; set; }
 
-        public FileSegregator()
+        public FileCollection()
         {
-            _filenames = new List<string>();
+            Filenames = new List<string>();
         }
 
-        public List<string> Filenames { get { return _filenames; } set { _filenames = value; } }
+        public List<string> Filenames { get; set; }
 
-       /// <summary>
-       /// Add a collection of filepaths from a folder directory.
-       /// </summary>
-       /// <param name="directory">The folder directory which stores the file collection</param>
-       /// <param name="extension">The file extension. Only handles .csv</param>
+        /// <summary>
+        /// Add a collection of filepaths from a folder directory.
+        /// </summary>
+        /// <param name="directory">The folder directory which stores the file collection</param>
+        /// <param name="extension">The file extension. Only handles .csv</param>
         public void AddFiles(string directory, string extension)
         {
             RecursiveFileSearch search = new RecursiveFileSearch();
             foreach(var item in search.GetFiles(directory, extension))
             {
-                _filenames.Add(item);
+                Filenames.Add(item);
             }
         }
 
@@ -40,7 +39,7 @@ namespace DescLogicFramework
         /// </summary>
         public void RemoveFiles()
         {
-            _filenames.Clear();
+            Filenames.Clear();
         }
     }
 }
