@@ -7,21 +7,24 @@ using System.Text;
 
 namespace DescLogicFramework
 {
-   public class DescriptionColumnValuePair
+    public class MeasurementColumnValuePair
     {
-
         [Key]
         public int ID { get; set; }
 
-        [MaxLength(1000)]
-        [Column(TypeName = "varchar(1000)")]
+        [MaxLength(500)]
+        [Column(TypeName = "varchar(500)")]
         public string Value { get; set; }
 
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
         public string ColumnName { get; set; }
 
+        public int? LithologicSubID { get; set; }
 
+        [MaxLength(50)]
+        [Column(TypeName = "varchar(50)")]
+        public string LithologicID { get; set; }
 
     }
 }

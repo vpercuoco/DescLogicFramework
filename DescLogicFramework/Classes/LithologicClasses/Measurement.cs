@@ -15,7 +15,7 @@ namespace DescLogicFramework
         #region EFCoreProperties
 
         [Key]
-        public Guid ID { get; set; }
+        public int ID { get; set; }
       
         public List<MeasurementColumnValuePair> Data { get; set; } = new List<MeasurementColumnValuePair>();
 

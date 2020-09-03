@@ -12,7 +12,7 @@ namespace DescLogicFramework
     public class LithologicSubinterval : Interval
     {
         [Key]
-        public Guid ID { get; set; }
+        public int ID { get; set; }
 
         public int? LithologicSubID { get; set; }
 

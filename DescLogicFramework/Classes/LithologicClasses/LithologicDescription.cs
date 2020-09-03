@@ -98,7 +98,7 @@ namespace DescLogicFramework
         /// <param name="SampleID">A IODP sample ID to be parsed to fill the Lithologic Description's SectionInfo fields</param>
         public LithologicDescription(string SampleID) : this()
         {
-            SectionInfo.ParseSampleID(SampleID); //At this point I need to reject the file if the sample iD says something like "No Data"
+            SectionInfo.ParseSampleID(SampleID);
           //  DescriptionSectionInfo = this.SectionInfo;
         }
 

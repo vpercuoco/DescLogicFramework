@@ -29,7 +29,7 @@ namespace DescLogicFramework
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid ID { get; set; }
+        public int ID { get; set; }
         public string Expedition{ get {return _expedition;} set {_expedition = value.ToString(); }}
         public string Site{ get{return _site;} set{ _site = value.ToString(); }}
         public string Hole{ get{ return _hole;} set{_hole = value.ToString(); }}
@@ -43,9 +43,6 @@ namespace DescLogicFramework
         //The DatabaseGeneratedOption.None attribute prevents EF from creating autoincremented values for this property
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int SectionTextID { get { return _sectionTextID; } set { _sectionTextID = value; } }
-
-
-
 
         #endregion
 
