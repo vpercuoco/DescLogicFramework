@@ -17,64 +17,75 @@ namespace DescLogicFramework
         /// </summary>
         /// <param name="dataTable">The datatable to convert</param>
         /// <returns></returns>
-        public Cache<string, LithologicDescription> Convert(IODPDataTable dataTable)
+        public Cache<string, LithologicDescription> Convert(IODPDataTable dataTable, ref SectionInfoCollection SectionCollection)
         {
-            Cache<string, LithologicDescription> LithologyCache = new Cache<string, LithologicDescription>();
-
+            var LithologyCache = new Cache<string, LithologicDescription>();
+          
+            if (dataTable == null)
+            {
+                return LithologyCache;
+            }
             //Add a column in the datatable to ensure consistency between files with and without descriptions:
             dataTable.DataTable.Columns.Add("LithologicID_VP", typeof(string)).SetOrdinal(0);
 
 
-                foreach (DataRow dataTableRow in dataTable.DataTable.Rows)
+            foreach (DataRow dataTableRow in dataTable.DataTable.Rows)
+            {
+                dataTableRow["LithologicID_VP"] = "-1";
+
+                if (!DataRowContainsDescription(dataTableRow, dataTable))
+                    return LithologyCache;
+
+                if (!DataRowContainsSampleIDColumn(dataTableRow, dataTable))
+                    return LithologyCache;
+
+                LithologicDescription description = new LithologicDescription(dataTableRow[dataTable.SampleID].ToString());
+
+                #region GlobalSectionList
+                description.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(description.SectionInfo);
+                description.StartOffset.SectionInfo = description.SectionInfo;
+                description.EndOffset.SectionInfo = description.SectionInfo;
+                #endregion
+
+                if (!DescriptionContainsSectionInfo(description))
+                    return LithologyCache;
+
+                description.DataRow = dataTableRow;
+
+                double parsedOffset = 0;
+
+                if (!DataRowContainsOffsetColumns(dataTableRow, dataTable))
+                    return LithologyCache;
+
+                if (!StartOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
+                    return LithologyCache;
+
+                description.StartOffset.Offset = parsedOffset;
+
+                if (!EndOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
+                    return LithologyCache;
+
+                description.EndOffset.Offset = parsedOffset;
+
+                LithologicIDGenerator IDGenerator = new LithologicIDGenerator();
+                IDGenerator.GenerateID(description);
+
+                if (description.OffsetsSet())
                 {
-                    dataTableRow["LithologicID_VP"] = "-1";
-
-                    if (DataRowContainsDescription(dataTableRow, dataTable) == false)
-                        return LithologyCache;
-
-                    if (DataRowContainsSampleIDColumn(dataTableRow, dataTable) == false)
-                        return LithologyCache;
-
-                    LithologicDescription description = new LithologicDescription(dataTableRow[dataTable.SampleID].ToString());
-
-
-                    if (DescriptionContainsSectionInfo(description) == false)
-                        return LithologyCache;
-                    
-                    description.DataRow = dataTableRow;
-
-                    double parsedOffset = 0;
-
-                    if (DataRowContainsOffsetColumns(dataTableRow, dataTable) == false)
-                        return LithologyCache;
-
-                    if (StartOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset) == false)
-                        return LithologyCache;
-
-                    if (EndOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset) == false)
-                        return LithologyCache;
-
-
-                    //Determine the Lithologic ID at this point
-                    LithologicIDGenerator IDGenerator = new LithologicIDGenerator();
-                    IDGenerator.GenerateID(description);
-
-                    if (description.OffsetsSet())
-                    {
-                        description.GenerateSubintervals();
-                    }
-
-                    description.DataRow["LithologicID_VP"] = description.LithologicID;
-                    LithologyCache.Add(description.LithologicID, description);
+                    description.GenerateSubintervals();
                 }
 
-                return LithologyCache;
+                description.DataRow["LithologicID_VP"] = description.LithologicID;
+                LithologyCache.Add(description.LithologicID, description);
+            }
+
+            return LithologyCache;
 
         }
 
         private bool StartOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
         {
-            
+
             if (double.TryParse(dataTableRow[dataTable.OffsetIntervals[0]].ToString(), out parsedOffset))
             {
                 return true;

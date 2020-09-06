@@ -11,7 +11,7 @@ namespace DescLogicFramework
     /// An object used to identify a core section.
     /// </summary>
     /// 
-    [Owned]
+   // [Owned]
     public class SectionInfo : IEquatable<SectionInfo>
     {
         #region Fields
@@ -61,11 +61,7 @@ namespace DescLogicFramework
         {
             ParseSampleID(sampleID);
         }
-        private string CreateSectionID()
-        {
-            string SectionID = _expedition + "-" + _site + _hole + "-" + _core.ToString() + "-" + _type + "-" + _section.ToString();
-            return SectionID;
-        }
+
         /// <summary>
         /// Displays a string of SectionInfo properties.
         /// </summary>
@@ -81,6 +77,8 @@ namespace DescLogicFramework
         /// <param name="sampleID">DescLogic Sample ID</param>
         public void ParseSampleID(string sampleID)
         {
+            _ = sampleID ?? throw new ArgumentNullException(nameof(sampleID));
+
             string[] f = sampleID.Split("-");
             switch (f.Length)
             {

@@ -11,7 +11,7 @@ namespace DescLogicFramework.DataAccess
     /// <summary>
     /// A class to handle importing, manipulating and exporting lithologic description files.
     /// </summary>
-    public class CSVLithologyWorkflowHandler : DataFileWorkFlowHandler<LithologicDescription>, IWorkFlowHandler<string, LithologicDescription>
+    public class CSVLithologyWorkflowHandler : DataFileWorkFlowHandler<LithologicDescription>
     {
 
         public FileCollection FileCollection { get; set; }
@@ -21,10 +21,11 @@ namespace DescLogicFramework.DataAccess
         public Cache<string, LithologicDescription> Cache { get; set; }
 
 
-        public Cache<string, LithologicDescription> ImportCache()
+        public Cache<string, LithologicDescription> ImportCache(ref SectionInfoCollection SectionCollection)
         {
             var LithologyCache = new Cache<string, LithologicDescription>();
             var LithologyConvertor = new LithologyConvertor();
+
             var dtReader = new CSVReader();
 
             foreach (string path in FileCollection.Filenames)
@@ -37,8 +38,8 @@ namespace DescLogicFramework.DataAccess
                 
                 dtReader.ReadPath = path;
                 var lithologyDataTable = ImportIODPDataTable(dtReader);
-
-                var ConvertedLithologyCache = LithologyConvertor.Convert(lithologyDataTable);
+                  
+                var ConvertedLithologyCache = LithologyConvertor.Convert(lithologyDataTable, ref SectionCollection);
 
                 foreach (var record in ConvertedLithologyCache.GetCollection())
                 {
@@ -54,15 +55,18 @@ namespace DescLogicFramework.DataAccess
             return LithologyCache;
         }
 
-        public void ExportCache(Cache<string, LithologicDescription> cache)
+        public void ExportCache(Cache<string, LithologicDescription> lithologyCache)
         {
-            if (cache.GetCollection().Count > 1)
+            _ = lithologyCache ?? throw new ArgumentNullException(nameof(lithologyCache));
+
+            bool lithologyCacheHasRecords = lithologyCache.GetCollection().Count > 1 ? true : false;
+
+            if (lithologyCacheHasRecords)
             {
-               
                 System.IO.Directory.CreateDirectory(ExportDirectory);
                 var exporter = new CSVReader();
                 exporter.WritePath = ExportDirectory + ExportFileName;
-                exporter.Write(cache.First().DataRow.Table);
+                exporter.Write(lithologyCache.First().DataRow.Table);
 
 
                 Console.WriteLine("Finished exporting Lithology file " + ExportFileName);
@@ -77,14 +81,17 @@ namespace DescLogicFramework.DataAccess
 
          public override void ImportMetaData(string[] metaData, LithologicDescription description)
         {
-            if (metaData.Count() == 5)
+            _ = description ?? throw new ArgumentNullException(nameof(description));
+
+            _ = metaData ?? throw new ArgumentNullException(nameof(metaData));
+
+            if (metaData.Length == 5)
             {
-               
                 description.DescriptionReport = metaData[1];
                 description.DescriptionGroup = metaData[2];
                 description.DescriptionTab = metaData[3];
             }
-            else if (metaData.Count() > 5)
+            else if (metaData.Length > 5)
             {
                 description.DescriptionReport = metaData[1] + " " + metaData[2];
                 description.DescriptionGroup = metaData[3];

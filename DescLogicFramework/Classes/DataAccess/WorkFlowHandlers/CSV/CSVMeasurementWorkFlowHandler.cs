@@ -10,49 +10,54 @@ namespace DescLogicFramework.DataAccess
     /// <summary>
     /// A class to handle importing, manipulating and exporting measurement files
     /// </summary>
-    public class CSVMeasurementWorkFlowHandler : DataFileWorkFlowHandler<Measurement>, IWorkFlowHandler<int, Measurement>
+    public class CSVMeasurementWorkFlowHandler : DataFileWorkFlowHandler<Measurement>
     {
         public FileCollection FileCollection { get; set; }
 
         public string ExportFileName { get; set; }
         public string ExportDirectory { get; set; }
-        
+
         public Cache<int, Measurement> Cache { get; set; }
 
         public override void ImportMetaData(string[] metaData, Measurement measurement)
-        {  
-                if (metaData.Count() == 3)
-                {
-                    measurement.InstrumentReport = metaData[0];
-                    measurement.InstrumentSystem = metaData[0];
-                }
+        {
+            _ = metaData ?? throw new ArgumentNullException(nameof(metaData));
+            _ = measurement ?? throw new ArgumentNullException(nameof(measurement));
+
+
+            if (metaData.Length == 3)
+            {
+                measurement.InstrumentReport = metaData[0];
+                measurement.InstrumentSystem = metaData[0];
+            }
         }
 
-        public Cache<int, Measurement> ImportCache()
+        public Cache<int, Measurement> ImportCache(ref SectionInfoCollection SectionCollection)
         {
-                var MeasurementCache = new Cache<int, Measurement>();
+            var MeasurementCache = new Cache<int, Measurement>();
 
-                string path = FileCollection.Filenames.FirstOrDefault();
-            
-                ExportFileName = path.Split(@"\").Last();
-                string[] metaData = ExportFileName.Split("_");
+            string path = FileCollection.Filenames.FirstOrDefault();
 
-                var dtReader = new CSVReader();
-                dtReader.ReadPath = path;
-                var Measurements = ImportIODPDataTable(dtReader);
+            ExportFileName = path.Split(@"\").Last();
+            string[] metaData = ExportFileName.Split("_");
 
-                MeasurementCache = (new MeasurementsConvertor()).Convert(Measurements);
+            var dtReader = new CSVReader();
+            dtReader.ReadPath = path;
+            var Measurements = ImportIODPDataTable(dtReader);
 
-                foreach (var record in MeasurementCache.GetCollection())
-                {
-                    ImportMetaData(metaData, record.Value);
-                }
-            
+            MeasurementCache = (new MeasurementsConvertor()).Convert(Measurements, ref SectionCollection);
+
+            foreach (var record in MeasurementCache.GetCollection())
+            {
+                ImportMetaData(metaData, record.Value);
+            }
+
             return MeasurementCache;
         }
 
         public void ExportCache(Cache<int, Measurement> cache)
         {
+            _ = cache ?? throw new ArgumentNullException(nameof(cache));
 
             System.IO.Directory.CreateDirectory(ExportDirectory);
 
@@ -87,7 +92,6 @@ namespace DescLogicFramework.DataAccess
                 foreach (var record in associatedMeasurements.GetCollection())
                 {
                     record.Value.DataRow.BeginEdit();
-                    //Currently I have issues if there are measurements for which a Lithologic Description has not been found. I'm setting those fields to a value of "-1"
                     if (record.Value.LithologicDescription != null)
                     {
                         record.Value.DataRow["LithologicID_VP"] = record.Value.LithologicDescription.LithologicID;

@@ -37,7 +37,7 @@ namespace DescLogicFramework
 
         //[MaxLength(50)]
         //[Column(TypeName = "int")]
-        [NotMapped]
+       // [NotMapped]
         public LithologicSubinterval LithologicSubinterval
         {
             get { return _lithologicSubInterval; }
@@ -106,18 +106,24 @@ namespace DescLogicFramework
 
         public Measurement()
         {
-            StartOffset = new OffsetInfo();
-            EndOffset = new OffsetInfo();
-            SectionInfo = new SectionInfo();
+
+        }
+
+        public Measurement(SectionInfo sectionInfo) : this()
+        {
+            SectionInfo = sectionInfo;
+            StartOffset = new OffsetInfo(SectionInfo);
+            EndOffset = new OffsetInfo(SectionInfo);
+            
         }
 
         /// <summary>
         /// Duplicates a Measurement. Creates a new Measurement by copying the properties of another Measurement.
         /// </summary>
         /// <param name="measurement">The Measurement object to copy.</param>
-        public Measurement(Measurement measurement) : this()
+        public Measurement(Measurement measurement) : this(measurement?.SectionInfo ?? throw new ArgumentNullException(nameof(measurement)))
         {
-            SectionInfo = measurement.SectionInfo;
+
             StartOffset = measurement.StartOffset;
             EndOffset = measurement.EndOffset;
             DataRow = measurement.DataRow;
@@ -145,6 +151,8 @@ namespace DescLogicFramework
         /// <param name="columnName">A column in the Measurement's DataRow</param>
         public void AddValueToColumn(LithologicDescription Description, string descriptionColumnName, string columnName)
         {
+            _ = Description ?? throw new ArgumentNullException(nameof(Description));
+
             if (Description.DataRow.Table.Columns.Contains(descriptionColumnName))
             {
                 this.AddValueToColumn(Description.DataRow[descriptionColumnName].ToString(), columnName);

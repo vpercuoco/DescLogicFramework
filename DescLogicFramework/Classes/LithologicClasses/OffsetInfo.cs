@@ -14,13 +14,14 @@ namespace DescLogicFramework
 
         public SectionInfo SectionInfo { get; set; }
 
-        public OffsetInfo()
+        public OffsetInfo(SectionInfo Section)
         {
-           SectionInfo = new SectionInfo();
+            SectionInfo = Section;
         }
 
         public bool Equals(OffsetInfo offsetInfo)
         {
+            
             if ((this.Offset == offsetInfo.Offset) && (this.SectionInfo.Equals(offsetInfo.SectionInfo)))
             {
                 return true;

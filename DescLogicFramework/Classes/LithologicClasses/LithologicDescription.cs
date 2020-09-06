@@ -84,11 +84,8 @@ namespace DescLogicFramework
         public LithologicDescription()
         {
             SectionInfo = new SectionInfo();
-            StartOffset = new OffsetInfo();
-            StartOffset.SectionInfo = new SectionInfo();
-
-            EndOffset = new OffsetInfo();
-            EndOffset.SectionInfo = new SectionInfo();
+            StartOffset = new OffsetInfo(SectionInfo);
+            EndOffset = new OffsetInfo(SectionInfo);
 
             _lithologicSubintervals = new List<LithologicSubinterval>();
         }
@@ -120,20 +117,16 @@ namespace DescLogicFramework
         /// </summary>
         public void GenerateSubintervals()
         {
-            int count = (int)Math.Ceiling((this.EndOffset.Offset - this.StartOffset.Offset) / _resolution);
+            int subintervalCount = (int)Math.Ceiling((this.EndOffset.Offset - this.StartOffset.Offset) / _resolution);
 
-            for (int i = 1; i <= count; i++)
+            for (int currentSubintervalID = 1; currentSubintervalID <= subintervalCount; currentSubintervalID++)
             {
-                LithologicSubinterval subinterval = new LithologicSubinterval(i);
-                subinterval.SectionInfo = this.SectionInfo;
-                subinterval.LithologicDescription = this;
-                subinterval.StartOffset.SectionInfo = this.SectionInfo;
-                subinterval.EndOffset.SectionInfo = this.SectionInfo;
+                LithologicSubinterval subinterval = new LithologicSubinterval(currentSubintervalID, this);
 
                 //Problem here is that you possibly create an extra longer interval because of the rounding error with the resolution and interval start-end distance.
                 //I'll leave it in because the measurement is based off the Description Interval--which is correct. The subinterval offsets are not output to file.
-                subinterval.StartOffset.Offset = this.StartOffset.Offset + _resolution*(i-1);
-                subinterval.EndOffset.Offset = this.StartOffset.Offset + _resolution * i;
+                subinterval.StartOffset.Offset = this.StartOffset.Offset + _resolution*(currentSubintervalID-1);
+                subinterval.EndOffset.Offset = this.StartOffset.Offset + _resolution * currentSubintervalID;
                 //need to determine how subintervals will be uniquely named
                 _lithologicSubintervals.Add(subinterval);
             }

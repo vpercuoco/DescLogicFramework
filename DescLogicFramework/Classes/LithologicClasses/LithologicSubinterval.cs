@@ -16,9 +16,7 @@ namespace DescLogicFramework
 
         public int? LithologicSubID { get; set; }
 
-
-        //I need to reference the parent description for Entity Framework to work
-        public LithologicDescription LithologicDescription {get; set;}
+        public LithologicDescription LithologicDescription { get; set; }
 
         public LithologicSubinterval()
         {
@@ -29,12 +27,14 @@ namespace DescLogicFramework
         /// Creates a new Lithologic Subinterval
         /// </summary>
         /// <param name="ID">An identification number for the subinterval</param>
-        public LithologicSubinterval(int subID)
+        public LithologicSubinterval(int subID, LithologicDescription Description)
         {
-            this.LithologicSubID = subID;
+            _ = Description ?? throw new ArgumentNullException(nameof(Description));
 
-            this.StartOffset = new OffsetInfo();
-            this.EndOffset = new OffsetInfo();
+            LithologicSubID = subID;
+            SectionInfo = Description.SectionInfo;
+            StartOffset = new OffsetInfo(Description.SectionInfo);
+            EndOffset = new OffsetInfo(Description.SectionInfo);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace DescLogicFramework
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format(@"Subinterval Start:{0}, End:{1}",StartOffset.Offset, EndOffset.Offset);
+            return string.Format(@"Subinterval Start:{0}, End:{1}", StartOffset.Offset, EndOffset.Offset);
         }
 
     }
