@@ -79,7 +79,7 @@ namespace DescLogicFramework.DataAccess
         /// <param name="measurementCache"></param>
         /// <param name="lithologyCache"></param>
         /// <returns></returns>
-        public Cache<int, Measurement> UpdateMeasurementCacheWithLithologicDescriptions(ref Cache<int, Measurement> measurementCache, ref Cache<string, LithologicDescription> lithologyCache)
+        public Cache<int, Measurement> UpdateMeasurementCacheWithLithologicDescriptions(ref Cache<int, Measurement> measurementCache, ref Dictionary<SectionInfo, Dictionary<string,LithologicDescription>> lithologyCache)
         {
             var associatedMeasurements = (new LithologicAssociator()).Associate(ref measurementCache, ref lithologyCache);
 

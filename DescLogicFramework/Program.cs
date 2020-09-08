@@ -23,6 +23,7 @@ namespace DescLogicFramework
             var conn = ConfigurationManager.ConnectionStrings["DBconnection"];
 
             ProgramSettings.SendDataToDataBase = false;
+            ProgramSettings.ExportCachesToFiles = true;
 
             ProgramWorkFlowHandler p = new ProgramWorkFlowHandler();
             Console.WriteLine("Program finished at " + DateTime.Now.ToString(CultureInfo.CurrentCulture));
@@ -34,6 +35,7 @@ namespace DescLogicFramework
     static class ProgramSettings
     {
         public static bool SendDataToDataBase { get; set; } = false;
+        public static bool ExportCachesToFiles { get; set; } = false;
     }
     public class ProgramWorkFlowHandler
     {
@@ -57,7 +59,10 @@ namespace DescLogicFramework
 
                 FileCollection measurementFileCollection = new FileCollection();
 
-                measurementFileCollection.AddFiles(@"C:\Users\percuoco\Desktop\AGU2019\AGU2019\" + expedition + @"\output\track_data", "*.csv");
+                //Measurement files with Laurel's related description data:
+                // measurementFileCollection.AddFiles(@"C:\Users\percuoco\Desktop\AGU2019\AGU2019\" + expedition + @"\output\track_data", "*.csv");
+                //Referencing the original measurement files:
+                measurementFileCollection.AddFiles(@"C:\Users\percuoco\Desktop\AGU2019\AGU2019\" + expedition + @"\data\measurements", "*.csv");
                 measurementFileCollection.ExportDirectory = ConfigurationManager.AppSettings["ExportDirectory"] + expedition + @"\Measurements\";
 
                 ProcessData(descriptionFileCollection, measurementFileCollection);
@@ -68,18 +73,6 @@ namespace DescLogicFramework
 
 
         }
-        public ProgramWorkFlowHandler(FileCollection descriptionFileCollection, FileCollection measurementFileCollection)
-        {
-            _ = descriptionFileCollection ?? throw new ArgumentNullException(nameof(descriptionFileCollection));
-            _ = measurementFileCollection ?? throw new ArgumentNullException(nameof(descriptionFileCollection));
-
-
-            if (descriptionFileCollection.ExportDirectory != null && measurementFileCollection.ExportDirectory != null)
-            {
-                ProcessData(descriptionFileCollection, measurementFileCollection);
-            }
-        }
-
         
         private void ProcessData(FileCollection DescriptionFileCollection, FileCollection MeasurementFileCollection)
         {
@@ -99,8 +92,13 @@ namespace DescLogicFramework
 
             if (ProgramSettings.SendDataToDataBase)
             {
-                SendLithologiesToDatabase(lithologyCache);
+                var dbWorkflowHandler = new DatabaseWorkflowHandler();
+                dbWorkflowHandler.SendLithologiesToDatabase(lithologyCache);
             }
+
+            //Reconfigure Lithologys
+            var LithCache = CacheReconfigurer.CreateDescriptionSearchHierarachy(lithologyCache);
+
             #endregion
 
             #region ImportMeasurementData
@@ -113,17 +111,23 @@ namespace DescLogicFramework
 
                 measurementWorkFlowHandler.FileCollection.RemoveFiles();
                 measurementWorkFlowHandler.FileCollection.Filenames.Add(path);
-
+                
                 var measurementCache = measurementWorkFlowHandler.ImportCache(ref SectionCollection);
-                var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref lithologyCache);
-
+                Console.WriteLine(string.Format("Processing {0} measurements", measurementCache.GetCollection().Count.ToString()));
+                // var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref lithologyCache);
+                var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref LithCache);
                 if (ProgramSettings.SendDataToDataBase)
                 {
-                    SendMeasurementsToDatabase(associatedMeasurementCache);
+                    var dbWorkflowHandler = new DatabaseWorkflowHandler();
+                    dbWorkflowHandler.SendMeasurementsToDatabase(associatedMeasurementCache);
                 }
 
-                measurementWorkFlowHandler.ExportDirectory = MeasurementFileCollection.ExportDirectory;
-                measurementWorkFlowHandler.ExportCache(associatedMeasurementCache);
+                if (ProgramSettings.ExportCachesToFiles)
+                {
+                    measurementWorkFlowHandler.ExportDirectory = MeasurementFileCollection.ExportDirectory;
+                    measurementWorkFlowHandler.ExportCache(associatedMeasurementCache);
+                }
+
 
                 measurementCache.Dispose();
                 measurementCache = null;
@@ -132,184 +136,13 @@ namespace DescLogicFramework
                 GC.Collect();
 
                 Console.WriteLine("The total section count is: " + SectionCollection.Sections.Count);
-                #endregion
+                
             }
+            #endregion
 
             Console.WriteLine("Finished processing measurement files at: " + DateTime.Now.ToString());
         }
-        private void SendLithologiesToDatabase(Cache<string, LithologicDescription> LithologyCache)
-        {
-            DescDBContext context = null;
-            try
-            {
-                context = new DescDBContext();
-                //context.Configuration.AutoDetectChangesEnabled = false;
-
-                int count = 0;
-
-                var descriptionList = LithologyCache.GetCollection().Values.Where(x => !string.IsNullOrEmpty(x.LithologicID));
-
-                // context.AddRange(descriptionList);
-
-                for (int i = 0; i < descriptionList.Count(); i = i + 100)
-                {
-                    var entityToInsert = descriptionList.Skip(i).Take(100).ToList();
-                    count = 100;
-                    context = AddLithologiesToContext(context, entityToInsert, count, 100, true);
-                }
-
-
-                context.SaveChanges();
-            }
-            finally
-            {
-                if (context != null)
-                    context.Dispose();
-            }
-
-        }
-        private void SendMeasurementsToDatabase(Cache<int, Measurement> MeasurementCache)
-        {
-            DescDBContext context = null;
-            try
-            {
-                context = new DescDBContext();
-                //context.Configuration.AutoDetectChangesEnabled = false;
-
-                int count = 0;
-                var descriptionList = MeasurementCache.GetCollection().Values.Where(x => x.LithologicSubID.HasValue);
-                for (int i = 0; i < descriptionList.Count(); i = i + 100)
-                {
-                    var entityToInsert = descriptionList.Skip(i).Take(100);
-                    count = 100;
-                    context = AddMeasurementsToContext(context, entityToInsert, count, 100, true);
-                }
-
-                context.SaveChanges();
-            }
-            finally
-            {
-                if (context != null)
-                    context.Dispose();
-            }
-        }
-
-        private DescDBContext AddToContext<TEntity>(DescDBContext context, IEnumerable<TEntity> entities, int count, int commitCount, bool recreateContext) where TEntity : class
-        {
-            context.AddRange(entities);
-
-
-            if (count % commitCount == 0)
-            {
-                context.SaveChanges();
-                if (recreateContext)
-                {
-                    context.Dispose();
-                    context = new DescDBContext();
-                }
-            }
-
-            return context;
-        }
-
-        private DescDBContext AddLithologiesToContext(DescDBContext context, IEnumerable<LithologicDescription> descriptions, int count, int commitCount, bool recreateContext)
-        {
-            context.AddRange(descriptions);
-
-            //Detach all child records which already have been added otherwise I get the following error
-            // Cannot insert explicit value for identity column in table 'Sections' when IDENTITY_INSERT is set to OFF.
-            foreach (var description in descriptions)
-            {
-                if (description.SectionInfo.ID != 0)
-                {
-                    context.Entry(description.SectionInfo).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                }
-
-                foreach (LithologicSubinterval subInterval in description.LithologicSubintervals)
-                {
-                    //Detach subintervals already added (and have non-zero primary keys)
-                    if (subInterval.ID != 0)
-                    {
-                        context.Entry(subInterval).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                    }
-                    //Detach subinterval sectioninfo already added (and have non-zero primary keys)
-                    if (subInterval.SectionInfo.ID != 0)
-                    {
-                        context.Entry(subInterval.SectionInfo).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                    }
-                }
-            }
-
-            if (count % commitCount == 0)
-            {
-                context.SaveChanges();
-                if (recreateContext)
-                {
-                    context.Dispose();
-                    context = new DescDBContext();
-                }
-            }
-
-            return context;
-
-        }
-        private DescDBContext AddMeasurementsToContext(DescDBContext context, IEnumerable<Measurement> measurements, int count, int commitCount, bool recreateContext)
-        {
-            context.AddRange(measurements);
-
-
-            //Detach all child records which already have been added otherwise I get the following error
-            // Cannot insert explicit value for identity column in table ... when IDENTITY_INSERT is set to OFF.
-            //Measurements can only get descriptions and subintervals which have already been loaded
-            foreach (var measurement in measurements)
-            {
-
-                //try detaching only the subinterval
-                // context.Entry(measurement.LithologicSubinterval).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                //context.Entry(measurement.LithologicDescription).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-                context.Entry(measurement.LithologicDescription).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-
-                foreach (LithologicSubinterval subInterval in measurement.LithologicDescription.LithologicSubintervals)
-                {
-                    if (measurement.LithologicSubinterval.ID != 0)
-                    {
-                        context.Entry(subInterval).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                    }
-
-                }
-
-                if (measurement.LithologicSubinterval.ID != 0)
-                {
-                    context.Entry(measurement.LithologicSubinterval).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                }
-
-                //DescriptionColumnValuePairs are tracked and accessed via the measurement's LithologicSubinterval property
-                foreach (DescriptionColumnValuePair entry in measurement.LithologicDescription.Data)
-                {
-                    context.Entry(entry).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                }
-
-                if (measurement.SectionInfo.ID != 0)
-                {
-                    context.Entry(measurement.SectionInfo).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
-                }
-            }
-
-            if (count % commitCount == 0)
-            {
-                context.SaveChanges();
-                if (recreateContext)
-                {
-                    context.Dispose();
-                    context = new DescDBContext();
-                }
-            }
-
-            return context;
-
-        }
-
+       
         public event EventHandler<BatchProcessCompleteEventArgs> BatchProcessCompleted;
         protected virtual void OnBatchProcessCompleted(object sender, BatchProcessCompleteEventArgs e)
         {

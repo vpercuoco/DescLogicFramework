@@ -17,15 +17,24 @@ namespace DescLogicFramework
         {
             int measurementCount = _measurements.GetCollection().Count + 1;
 
+            //TODO: Ignore record if error is thrown, ex: offsets with TCON
             foreach (DataRow record in dataTable.DataTable.Rows)
             {
                 SectionInfo measurementSectionInfo = new SectionInfo();
-                measurementSectionInfo.Expedition = record[dataTable.Expedition].ToString();
-                measurementSectionInfo.Site = record[dataTable.Site].ToString();
-                measurementSectionInfo.Hole = record[dataTable.Hole].ToString();
-                measurementSectionInfo.Core = record[dataTable.Core].ToString();
-                measurementSectionInfo.Type = record[dataTable.Type].ToString();
-                measurementSectionInfo.Section = record[dataTable.Section].ToString();
+                try
+                {
+                    measurementSectionInfo.Expedition = record[dataTable.Expedition].ToString();
+                    measurementSectionInfo.Site = record[dataTable.Site].ToString();
+                    measurementSectionInfo.Hole = record[dataTable.Hole].ToString();
+                    measurementSectionInfo.Core = record[dataTable.Core].ToString();
+                    measurementSectionInfo.Type = record[dataTable.Type].ToString();
+                    measurementSectionInfo.Section = record[dataTable.Section].ToString();
+                }
+                catch (Exception)
+                {
+                    throw new IndexOutOfRangeException(nameof(record));
+                }
+
 
                 Measurement measurement = new Measurement(measurementSectionInfo);
 
@@ -37,27 +46,35 @@ namespace DescLogicFramework
                 #endregion
 
                 //CARB files throw error here because there isn't an offset field within the file. Ensure there is.
-                if (!string.IsNullOrEmpty(dataTable.Offset))
+                try
                 {
-                    //measurement.OffsetInfo.Offset = double.Parse(record[dt.Offset].ToString());
-                    measurement.StartOffset.Offset = double.Parse(record[dataTable.Offset].ToString());
-                    measurement.EndOffset.Offset = double.Parse(record[dataTable.Offset].ToString());
-                }
-                if (!string.IsNullOrEmpty(dataTable.OffsetIntervals[0]))
-                {
-                    measurement.StartOffset.Offset = double.Parse(record[dataTable.OffsetIntervals[0]].ToString());
-                }
-                if (!string.IsNullOrEmpty(dataTable.OffsetIntervals[1]))
-                {
-                    measurement.EndOffset.Offset = double.Parse(record[dataTable.OffsetIntervals[1]].ToString());
-                }
+                    if (!string.IsNullOrEmpty(dataTable.Offset))
+                    {
+                        //measurement.OffsetInfo.Offset = double.Parse(record[dt.Offset].ToString());
+                        measurement.StartOffset.Offset = double.Parse(record[dataTable.Offset].ToString());
+                        measurement.EndOffset.Offset = double.Parse(record[dataTable.Offset].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dataTable.OffsetIntervals[0]))
+                    {
+                        measurement.StartOffset.Offset = double.Parse(record[dataTable.OffsetIntervals[0]].ToString());
+                    }
+                    if (!string.IsNullOrEmpty(dataTable.OffsetIntervals[1]))
+                    {
+                        measurement.EndOffset.Offset = double.Parse(record[dataTable.OffsetIntervals[1]].ToString());
+                    }
 
-                //If there measurement intervals overlapping description intervals then you want to duplicate measurements to the cache, and then attribute the individual descriptions to each, respectively.
-                measurement.DataRow = record;
+                    //If there measurement intervals overlapping description intervals then you want to duplicate measurements to the cache, and then attribute the individual descriptions to each, respectively.
+                    measurement.DataRow = record;
 
-                _measurements.Add(measurementCount, measurement);
-                measurementCount++;
+                    _measurements.Add(measurementCount, measurement);
+                    measurementCount++;
+                }
+                catch (Exception)
+                {
+                    //throw;
+                }
             }
+
             return _measurements;
         }
     }

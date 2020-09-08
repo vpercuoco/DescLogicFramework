@@ -66,7 +66,7 @@ namespace DescLogicFramework
         /// <param name="Measurements">The cache of measurements</param>
         /// <param name="Descriptions">The cache of Lithologic Descriptions</param>
         /// <returns>A cache of Measurements</returns>
-        public Cache<int, Measurement> Associate(ref Cache<int, Measurement> Measurements, ref Cache<string, LithologicDescription> Descriptions)
+        public Cache<int, Measurement> Associate(ref Cache<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
         {
             if (Measurements.GetCollection().Count > 0)
             {
@@ -85,8 +85,8 @@ namespace DescLogicFramework
 
                 SetSubIntervals(Measurements);
 
-                Console.WriteLine("The number of nonmatch intervals were: " + nonMatchIntervals.ToString());
-                Console.WriteLine("The number of nonmatch subintervals were: " + nonMatchSubintervals.ToString());
+                Console.WriteLine(string.Format("Could not find lithologic descriptions for {0} of imported measurements.", nonMatchIntervals.ToString()));
+                Console.WriteLine(string.Format("Could not find lithologic subintervals for {0} of measurements with associated lithologic descriptions.", nonMatchSubintervals.ToString()));
 
             }
             return Measurements;
@@ -101,29 +101,49 @@ namespace DescLogicFramework
         /// <param name="Measurements">The cache of measurements</param>
         /// <param name="Descriptions">The cache of Lithologic Descriptions</param>
         /// <returns></returns>
-        private Cache<int, Measurement> SetMeasurementLithologicDescription(ref Cache<int, Measurement> Measurements, ref Cache<string, LithologicDescription> Descriptions)
+        private Cache<int, Measurement> SetMeasurementLithologicDescription(ref Cache<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
         {
 
-            foreach (KeyValuePair<int, Measurement> measurement in Measurements.GetCollection())
+            foreach (Measurement measurement in Measurements.GetCollection().Values)
             {
                 if (IsOffsetTypeMeasurement(measurement))
                 {
-                    var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value)).ToList();
-                    measurement.Value.LithologicDescription = matchingDescriptions.FirstOrDefault().Value;
+                    //Method must use the original Cache<string,LithologicDescriptions> Descriptions parameter for the following two lines to work:
+                    //var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value)).ToList();
+                    // measurement.Value.LithologicDescription = matchingDescriptions.FirstOrDefault().Value;
+
+                    measurement.LithologicDescription = Descriptions.Where(z => z.Key.Equals(measurement.SectionInfo))
+                                                                    .SelectMany(x => x.Value.Values.Where(x => x.Contains(measurement)))
+                                                                    .FirstOrDefault();
+                                                                     
+
+                        //.FirstOrDefault(x => x.Value.Contains(measurement.Value)).Value;
+                                                                           // .Select(x => x.Value.Where(y => y.Value.Contains(measurement.Value)).FirstOrDefault().Value).FirstOrDefault();
+
+                   
                 }
                 else if (IsIntervalTypeMeasurement(measurement))
                 {
-                    var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value)).ToList();
-                    int recordCount = matchingDescriptions.Count;
+                    //Method must use the original Cache<string,LithologicDescriptions> Descriptions parameter for the following two lines to work:
+                    // var matchingDescriptions = Descriptions.GetCollection().Where(z => z.Value.Contains(measurement.Value)).ToList();
+                    // int recordCount = matchingDescriptions.Count;
+                    // measurement.Value.LithologicDescription = matchingDescriptions.FirstOrDefault().Value;
 
-                    measurement.Value.LithologicDescription = matchingDescriptions.FirstOrDefault().Value;
+
+                    var matchingDescriptions = Descriptions.Where(z => z.Key.Equals(measurement.SectionInfo))
+                                                           .SelectMany(x => x.Value.Values.Where(x => x.Contains(measurement)))
+                                                           .ToList();
+                                                                            
+                    int recordCount = matchingDescriptions.Count;
+                    measurement.LithologicDescription = matchingDescriptions.FirstOrDefault();
 
                     //Code which duplicates a measurement in the temp cache if its interval overlaps more than one lithologic description interval
                     int cacheCount = IntervalTemporaryCache.Count();
                     for (int i = 2; i < recordCount; i++)
                     {
-                        Measurement measurementDifferentLithology = new Measurement(measurement.Value);
-                        measurementDifferentLithology.LithologicDescription = matchingDescriptions.ElementAt(i).Value;
+                        Measurement measurementDifferentLithology = new Measurement(measurement);
+                        //measurementDifferentLithology.LithologicDescription = matchingDescriptions.ElementAt(i).Value;
+                        measurementDifferentLithology.LithologicDescription = matchingDescriptions.ElementAt(i);
                         IntervalTemporaryCache.Add(cacheCount + i - 1, measurementDifferentLithology);
                     }
                 }
@@ -159,10 +179,10 @@ namespace DescLogicFramework
         }
 
 
-        private bool IsOffsetTypeMeasurement(KeyValuePair<int, Measurement> measurement)
+        private bool IsOffsetTypeMeasurement(Measurement measurement)
         {
 
-            if (measurement.Value.StartOffset.Offset != -1 && measurement.Value.StartOffset.Offset == measurement.Value.EndOffset.Offset)
+            if (measurement.StartOffset.Offset != -1 && measurement.StartOffset.Offset == measurement.EndOffset.Offset)
             {
                 return true;
             }
@@ -173,9 +193,9 @@ namespace DescLogicFramework
 
         }
 
-        private bool IsIntervalTypeMeasurement(KeyValuePair<int, Measurement> measurement)
+        private bool IsIntervalTypeMeasurement(Measurement measurement)
         {
-            if (measurement.Value.StartOffset.Offset != -1 && measurement.Value.EndOffset.Offset != -1)
+            if (measurement.StartOffset.Offset != -1 && measurement.EndOffset.Offset != -1)
             {
                 return true;
             }

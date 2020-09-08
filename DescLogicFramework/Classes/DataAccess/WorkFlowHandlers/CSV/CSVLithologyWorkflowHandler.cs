@@ -48,8 +48,11 @@ namespace DescLogicFramework.DataAccess
                 }
 
                 ExportFileName = filename;
-                ExportCache(ConvertedLithologyCache);
 
+                if (ProgramSettings.ExportCachesToFiles)
+                {
+                    ExportCache(ConvertedLithologyCache);
+                }
             }
 
             return LithologyCache;

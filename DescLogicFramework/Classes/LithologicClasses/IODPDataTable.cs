@@ -32,7 +32,6 @@ namespace DescLogicFramework
         {
             DataTable = dt;
 
-            //Find the correct column headers in the datatable and assign to properties
             List<string> columnNames = getColumnNames(dt);
             string match = null;
 
@@ -92,29 +91,5 @@ namespace DescLogicFramework
             }
             return columnNames;
         }
-
-     /*   /// <summary>
-        /// Adds a DataColumn to the current DataTable
-        /// </summary>
-        /// <param name="dataColumn"></param>
-        /// <returns></returns>
-        public DataTable AddColumn(string columnName)
-        {
-
-            if (!this.DataTable.Columns.Contains(columnName))
-            {
-                DataColumn dc = new DataColumn();
-                dc.ColumnName = columnName;
-                dc.AllowDBNull = true;
-                dc.DefaultValue = -1;
-            }
-            else
-            {
-                Console.WriteLine("Datatable already contains datacolumn");
-              
-            }
-            return this.DataTable;
-        }
-        */
     }
 }
