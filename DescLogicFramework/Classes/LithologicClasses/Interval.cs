@@ -41,7 +41,7 @@ namespace DescLogicFramework
         /// </summary>
 
       
-        public SectionInfo SectionInfo { get; set; } //= new SectionInfo();
+        public SectionInfo SectionInfo { get; set; } 
 
         /// <summary>
         /// Determines if an offset falls within the interval offsets.
@@ -50,6 +50,8 @@ namespace DescLogicFramework
         /// <returns></returns>
         public bool Contains(OffsetInfo offset)
         {
+            _ = offset ?? throw new ArgumentNullException(nameof(offset));
+
             if (offset.Offset >= this.StartOffset.Offset && offset.Offset <= this.EndOffset.Offset && this.SectionInfo.Equals(offset.SectionInfo))
             {
                 return true;

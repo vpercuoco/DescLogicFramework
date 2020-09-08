@@ -17,8 +17,6 @@ namespace DescLogicFramework.DataAccess
         public string ExportFileName { get; set; }
         public string ExportDirectory { get; set; }
 
-        public Cache<int, Measurement> Cache { get; set; }
-
         public override void ImportMetaData(string[] metaData, Measurement measurement)
         {
             _ = metaData ?? throw new ArgumentNullException(nameof(metaData));
@@ -32,10 +30,9 @@ namespace DescLogicFramework.DataAccess
             }
         }
 
-        public Cache<int, Measurement> ImportCache(ref SectionInfoCollection SectionCollection)
+        public Dictionary<int, Measurement> ImportCache(ref SectionInfoCollection SectionCollection)
         {
-            var MeasurementCache = new Cache<int, Measurement>();
-
+            
             string path = FileCollection.Filenames.FirstOrDefault();
 
             ExportFileName = path.Split(@"\").Last();
@@ -45,9 +42,9 @@ namespace DescLogicFramework.DataAccess
             dtReader.ReadPath = path;
             var Measurements = ImportIODPDataTable(dtReader);
 
-            MeasurementCache = (new MeasurementsConvertor()).Convert(Measurements, ref SectionCollection);
+            var MeasurementCache = (new MeasurementsConvertor()).Convert(Measurements, ref SectionCollection);
 
-            foreach (var record in MeasurementCache.GetCollection())
+            foreach (var record in MeasurementCache)
             {
                 ImportMetaData(metaData, record.Value);
             }
@@ -55,17 +52,17 @@ namespace DescLogicFramework.DataAccess
             return MeasurementCache;
         }
 
-        public void ExportCache(Cache<int, Measurement> cache)
+        public void ExportCache(Dictionary<int, Measurement> cache)
         {
             _ = cache ?? throw new ArgumentNullException(nameof(cache));
 
             System.IO.Directory.CreateDirectory(ExportDirectory);
 
-            if (cache.GetCollection().Count > 0)
+            if (cache.Count > 0)
             {
                 var Exporter = new CSVReader();
                 Exporter.WritePath = ExportDirectory + ExportFileName;
-                Exporter.Write(cache.GetCollection()[1].DataRow.Table);
+                Exporter.Write(cache[1].DataRow.Table);
             }
 
             Console.WriteLine("Finished exporting file " + ExportFileName);
@@ -79,17 +76,17 @@ namespace DescLogicFramework.DataAccess
         /// <param name="measurementCache"></param>
         /// <param name="lithologyCache"></param>
         /// <returns></returns>
-        public Cache<int, Measurement> UpdateMeasurementCacheWithLithologicDescriptions(ref Cache<int, Measurement> measurementCache, ref Dictionary<SectionInfo, Dictionary<string,LithologicDescription>> lithologyCache)
+        public Dictionary<int, Measurement> UpdateMeasurementCacheWithLithologicDescriptions(ref Dictionary<int, Measurement> measurementCache, ref Dictionary<SectionInfo, Dictionary<string,LithologicDescription>> lithologyCache)
         {
             var associatedMeasurements = (new LithologicAssociator()).Associate(ref measurementCache, ref lithologyCache);
 
             //Set LithologicID, and LithologicSubIDs as new columns in datatable
-            if (associatedMeasurements.GetCollection().Count > 1)
+            if (associatedMeasurements.Count > 1)
             {
-                associatedMeasurements.GetCollection()[1].DataRow.Table.Columns.Add("LithologicID_VP", typeof(string)).SetOrdinal(0);
-                associatedMeasurements.GetCollection()[1].DataRow.Table.Columns.Add("LithologicSubID_VP", typeof(string)).SetOrdinal(1);
+                associatedMeasurements[1].DataRow.Table.Columns.Add("LithologicID_VP", typeof(string)).SetOrdinal(0);
+                associatedMeasurements[1].DataRow.Table.Columns.Add("LithologicSubID_VP", typeof(string)).SetOrdinal(1);
 
-                foreach (var record in associatedMeasurements.GetCollection())
+                foreach (var record in associatedMeasurements)
                 {
                     record.Value.DataRow.BeginEdit();
                     if (record.Value.LithologicDescription != null)

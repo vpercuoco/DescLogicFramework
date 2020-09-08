@@ -71,17 +71,6 @@ namespace DescLogicFramework
             return GetEnumerator();
         }
 
-        /// <summary>
-        /// Adds an entire cache to this cache.
-        /// </summary>
-        /// <param name="CacheToAdd"></param>
-        public void AddCache(Cache<T, T1> CacheToAdd)
-        {
-            foreach(KeyValuePair<T,T1> record in CacheToAdd.GetCollection())
-            {
-                this.Add(record.Key, record.Value);
-            }
-        }
 
 
         #region IDisposable Support

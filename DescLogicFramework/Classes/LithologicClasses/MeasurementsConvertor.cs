@@ -11,11 +11,12 @@ namespace DescLogicFramework
     /// </summary>
     public class MeasurementsConvertor
     {
-        private Cache<int, Measurement> _measurements = new Cache<int, Measurement>();
 
-        public Cache<int, Measurement> Convert(IODPDataTable dataTable, ref SectionInfoCollection SectionCollection)
+        private Dictionary<int, Measurement> _measurements = new Dictionary<int, Measurement>();
+
+        public Dictionary<int, Measurement> Convert(IODPDataTable dataTable, ref SectionInfoCollection SectionCollection)
         {
-            int measurementCount = _measurements.GetCollection().Count + 1;
+            int measurementCount = _measurements.Count + 1;
 
             //TODO: Ignore record if error is thrown, ex: offsets with TCON
             foreach (DataRow record in dataTable.DataTable.Rows)

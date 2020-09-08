@@ -17,9 +17,9 @@ namespace DescLogicFramework
         /// </summary>
         /// <param name="dataTable">The datatable to convert</param>
         /// <returns></returns>
-        public Cache<string, LithologicDescription> Convert(IODPDataTable dataTable, ref SectionInfoCollection SectionCollection)
+        public Dictionary<string, LithologicDescription> Convert(IODPDataTable dataTable, ref SectionInfoCollection SectionCollection)
         {
-            var LithologyCache = new Cache<string, LithologicDescription>();
+            var LithologyCache = new Dictionary<string, LithologicDescription>();
           
             if (dataTable == null)
             {
@@ -76,7 +76,14 @@ namespace DescLogicFramework
                 }
 
                 description.DataRow["LithologicID_VP"] = description.LithologicID;
-                LithologyCache.Add(description.LithologicID, description);
+
+                //Some descriptions are split in two rows. It's very uncommon, but throws an error
+                //Only selecting the first row, despite the loss of data
+                if (!LithologyCache.ContainsKey(description.LithologicID))
+                {
+                    LithologyCache.Add(description.LithologicID, description);
+                }
+                
             }
 
             return LithologyCache;

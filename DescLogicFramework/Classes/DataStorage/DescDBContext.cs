@@ -54,8 +54,5 @@ namespace DescLogicFramework
 
         public DbSet<LithologicSubinterval> LithologicSubintervals { get; set; }
 
-        // public object LithologicDescription { get; internal set; }
-
-
     }
 }

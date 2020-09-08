@@ -9,14 +9,14 @@ namespace DescLogicFramework
 {
     public static class CacheReconfigurer
     {
-        public static Dictionary<SectionInfo,Dictionary<string,LithologicDescription>> CreateDescriptionSearchHierarachy(Cache<string, LithologicDescription> Descriptions)
+        public static Dictionary<SectionInfo,Dictionary<string,LithologicDescription>> CreateDescriptionSearchHierarachy(Dictionary<string, LithologicDescription> Descriptions)
         {
 
         return Descriptions
-                .GroupBy(x => x.SectionInfo)
+                .GroupBy(x => x.Value.SectionInfo)
                 .ToDictionary(x => x.Key,
-                              x => x.ToDictionary(y => y.LithologicID,
-                                                y => y));
+                              x => x.ToDictionary(y => y.Value.LithologicID,
+                                                y => y.Value));
 
         }
 

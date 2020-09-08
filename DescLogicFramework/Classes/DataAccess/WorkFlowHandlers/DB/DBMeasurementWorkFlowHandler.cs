@@ -13,7 +13,7 @@ namespace DescLogicFramework.DataAccess
         {
 
         }
-        public DataTable ConvertToDatabaseSchema(Cache<int, Measurement> Measurements)
+        public DataTable ConvertToDatabaseSchema(Dictionary<int, Measurement> Measurements)
         {
 
             DataTable DataTableToSendToDatabase = new DataTable();
@@ -28,7 +28,7 @@ namespace DescLogicFramework.DataAccess
             DataTableToSendToDatabase.Columns.Add("lithologic_subID", typeof(string));
 
             long i = 1;
-            foreach (KeyValuePair<int, Measurement> measurement in Measurements.GetCollection())
+            foreach (KeyValuePair<int, Measurement> measurement in Measurements)
             {
                 List<string> ColumnNames = measurement.Value.DataRow.Table.Columns.Cast<DataColumn>()
                    .Select(c => c.ColumnName)
@@ -64,7 +64,7 @@ namespace DescLogicFramework.DataAccess
 
         }
 
-        public bool SendDataTableToDatabase(Cache<int, Measurement> MeasurementCache)
+        public bool SendDataTableToDatabase(Dictionary<int, Measurement> MeasurementCache)
         {
 
 

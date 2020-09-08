@@ -13,17 +13,16 @@ namespace DescLogicFramework.DataAccess
     /// </summary>
     public class CSVLithologyWorkflowHandler : DataFileWorkFlowHandler<LithologicDescription>
     {
-
         public FileCollection FileCollection { get; set; }
 
         public string ExportFileName {get; set;}
         public string ExportDirectory { get; set; }
-        public Cache<string, LithologicDescription> Cache { get; set; }
 
 
-        public Cache<string, LithologicDescription> ImportCache(ref SectionInfoCollection SectionCollection)
+        public Dictionary<string, LithologicDescription> ImportCache(ref SectionInfoCollection SectionCollection)
         {
-            var LithologyCache = new Cache<string, LithologicDescription>();
+
+            var LithologyCache = new Dictionary<string, LithologicDescription>();
             var LithologyConvertor = new LithologyConvertor();
 
             var dtReader = new CSVReader();
@@ -41,7 +40,9 @@ namespace DescLogicFramework.DataAccess
                   
                 var ConvertedLithologyCache = LithologyConvertor.Convert(lithologyDataTable, ref SectionCollection);
 
-                foreach (var record in ConvertedLithologyCache.GetCollection())
+
+
+                foreach (var record in ConvertedLithologyCache)
                 {
                     ImportMetaData(metaData, record.Value);
                     LithologyCache.Add(record.Key, record.Value);
@@ -58,18 +59,18 @@ namespace DescLogicFramework.DataAccess
             return LithologyCache;
         }
 
-        public void ExportCache(Cache<string, LithologicDescription> lithologyCache)
+        public void ExportCache(Dictionary<string, LithologicDescription> lithologyCache)
         {
             _ = lithologyCache ?? throw new ArgumentNullException(nameof(lithologyCache));
 
-            bool lithologyCacheHasRecords = lithologyCache.GetCollection().Count > 1 ? true : false;
+            bool lithologyCacheHasRecords = lithologyCache.Count > 1 ? true : false;
 
             if (lithologyCacheHasRecords)
             {
                 System.IO.Directory.CreateDirectory(ExportDirectory);
                 var exporter = new CSVReader();
                 exporter.WritePath = ExportDirectory + ExportFileName;
-                exporter.Write(lithologyCache.First().DataRow.Table);
+                exporter.Write(lithologyCache.Values.First().DataRow.Table);
 
 
                 Console.WriteLine("Finished exporting Lithology file " + ExportFileName);

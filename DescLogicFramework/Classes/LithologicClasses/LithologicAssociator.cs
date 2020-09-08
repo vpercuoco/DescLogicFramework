@@ -16,7 +16,7 @@ namespace DescLogicFramework
     {
         int nonMatchIntervals = 0;
         int nonMatchSubintervals = 0;
-        Cache<int, Measurement> IntervalTemporaryCache = new Cache<int, Measurement>();
+        Dictionary<int, Measurement> IntervalTemporaryCache = new Dictionary<int, Measurement>();
 
         public event EventHandler<MultipleDescriptionsEventArgs> MultipleDescriptionsDetected;
         protected virtual void OnMultipleDescriptionsDetected(object sender, MultipleDescriptionsEventArgs e)
@@ -66,18 +66,18 @@ namespace DescLogicFramework
         /// <param name="Measurements">The cache of measurements</param>
         /// <param name="Descriptions">The cache of Lithologic Descriptions</param>
         /// <returns>A cache of Measurements</returns>
-        public Cache<int, Measurement> Associate(ref Cache<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
+        public Dictionary<int, Measurement> Associate(ref Dictionary<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
         {
-            if (Measurements.GetCollection().Count > 0)
+            if (Measurements.Count > 0)
             {
 
-                IntervalTemporaryCache.GetCollection().Clear();
+                IntervalTemporaryCache.Clear();
 
                 SetMeasurementLithologicDescription(ref Measurements, ref Descriptions);
 
                 //Add in all the measurements which overlap more than one interval back into the main cache
-                int lastMeasurementKey = Measurements.GetCollection().Keys.Max();
-                foreach (KeyValuePair<int, Measurement> record in IntervalTemporaryCache.GetCollection())
+                int lastMeasurementKey = Measurements.Keys.Max();
+                foreach (KeyValuePair<int, Measurement> record in IntervalTemporaryCache)
                 {
                     lastMeasurementKey++;
                     Measurements.Add(lastMeasurementKey, record.Value);
@@ -101,10 +101,10 @@ namespace DescLogicFramework
         /// <param name="Measurements">The cache of measurements</param>
         /// <param name="Descriptions">The cache of Lithologic Descriptions</param>
         /// <returns></returns>
-        private Cache<int, Measurement> SetMeasurementLithologicDescription(ref Cache<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
+        private Dictionary<int, Measurement> SetMeasurementLithologicDescription(ref Dictionary<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
         {
 
-            foreach (Measurement measurement in Measurements.GetCollection().Values)
+            foreach (Measurement measurement in Measurements.Values)
             {
                 if (IsOffsetTypeMeasurement(measurement))
                 {
@@ -155,15 +155,15 @@ namespace DescLogicFramework
         /// Identifies the Lithologic Subinterval for a given Measurement
         /// </summary>
         /// <param name="Measurements">A collection of Measurements</param>
-        private void SetSubIntervals(Cache<int, Measurement> Measurements)
+        private void SetSubIntervals(Dictionary<int, Measurement> Measurements)
         {
-            foreach (KeyValuePair<int, Measurement> measurement in Measurements.GetCollection())
+            foreach (Measurement measurement in Measurements.Values)
             {
-                if (measurement.Value.LithologicDescription != null)
+                if (measurement.LithologicDescription != null)
                 {
                     try
                     {
-                        measurement.Value.LithologicSubinterval = measurement.Value.LithologicDescription.GetSubinterval(measurement.Value);
+                        measurement.LithologicSubinterval = measurement.LithologicDescription.GetSubinterval(measurement);
                     }
                     catch (Exception ex)
                     {

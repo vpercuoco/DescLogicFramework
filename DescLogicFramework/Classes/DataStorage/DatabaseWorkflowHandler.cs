@@ -12,7 +12,7 @@ namespace DescLogicFramework
 
         }
 
-        public void SendLithologiesToDatabase(Cache<string, LithologicDescription> LithologyCache)
+        public void SendLithologiesToDatabase(Dictionary<string, LithologicDescription> LithologyCache)
         {
             DescDBContext context = null;
             try
@@ -22,7 +22,7 @@ namespace DescLogicFramework
 
                 int count = 0;
 
-                var descriptionList = LithologyCache.GetCollection().Values.Where(x => !string.IsNullOrEmpty(x.LithologicID));
+                var descriptionList = LithologyCache.Values.Where(x => !string.IsNullOrEmpty(x.LithologicID));
 
                 // context.AddRange(descriptionList);
 
@@ -43,7 +43,7 @@ namespace DescLogicFramework
             }
 
         }
-        public void SendMeasurementsToDatabase(Cache<int, Measurement> MeasurementCache)
+        public void SendMeasurementsToDatabase(Dictionary<int, Measurement> MeasurementCache)
         {
             DescDBContext context = null;
             try
@@ -52,7 +52,7 @@ namespace DescLogicFramework
                 //context.Configuration.AutoDetectChangesEnabled = false;
 
                 int count = 0;
-                var descriptionList = MeasurementCache.GetCollection().Values.Where(x => x.LithologicSubID.HasValue);
+                var descriptionList = MeasurementCache.Values.Where(x => x.LithologicSubID.HasValue);
                 for (int i = 0; i < descriptionList.Count(); i = i + 100)
                 {
                     var entityToInsert = descriptionList.Skip(i).Take(100);

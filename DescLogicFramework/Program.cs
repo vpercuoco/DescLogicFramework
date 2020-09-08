@@ -113,7 +113,7 @@ namespace DescLogicFramework
                 measurementWorkFlowHandler.FileCollection.Filenames.Add(path);
                 
                 var measurementCache = measurementWorkFlowHandler.ImportCache(ref SectionCollection);
-                Console.WriteLine(string.Format("Processing {0} measurements", measurementCache.GetCollection().Count.ToString()));
+                Console.WriteLine(string.Format("Processing {0} measurements", measurementCache.Count.ToString()));
                 // var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref lithologyCache);
                 var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref LithCache);
                 if (ProgramSettings.SendDataToDataBase)
@@ -128,12 +128,10 @@ namespace DescLogicFramework
                     measurementWorkFlowHandler.ExportCache(associatedMeasurementCache);
                 }
 
-
-                measurementCache.Dispose();
                 measurementCache = null;
-                associatedMeasurementCache.Dispose();
                 associatedMeasurementCache = null;
                 GC.Collect();
+                
 
                 Console.WriteLine("The total section count is: " + SectionCollection.Sections.Count);
                 
