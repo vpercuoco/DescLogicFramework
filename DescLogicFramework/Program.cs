@@ -25,7 +25,7 @@ namespace DescLogicFramework
             ProgramSettings.SendDataToDataBase = false;
             ProgramSettings.ExportCachesToFiles = true;
 
-            ProgramWorkFlowHandler p = new ProgramWorkFlowHandler();
+            _ = new ProgramWorkFlowHandler();
             Console.WriteLine("Program finished at " + DateTime.Now.ToString(CultureInfo.CurrentCulture));
 
         }
@@ -41,8 +41,8 @@ namespace DescLogicFramework
     {
         public ProgramWorkFlowHandler()
         {
-            this.BatchProcessCompleted += NotifyConsoleOfBatchProcessed;
-            string expedition = "";
+            BatchProcessCompleted += NotifyConsoleOfBatchProcessed;
+            string expedition = string.Empty;
 
             do
             {
@@ -67,7 +67,10 @@ namespace DescLogicFramework
 
                 ProcessData(descriptionFileCollection, measurementFileCollection);
 
-                this.OnBatchProcessCompleted(this, new BatchProcessCompleteEventArgs(expedition));
+                OnBatchProcessCompleted(this, new BatchProcessCompleteEventArgs(expedition));
+
+                descriptionFileCollection = null;
+                measurementFileCollection = null;
             }
             while (expedition != "E");
 
@@ -76,67 +79,63 @@ namespace DescLogicFramework
         
         private void ProcessData(FileCollection DescriptionFileCollection, FileCollection MeasurementFileCollection)
         {
-
             #region ImportDescriptionData
-            foreach (string fileName in DescriptionFileCollection.Filenames)
-            {
-                Console.WriteLine(fileName.ToString());
-            }
 
-            var lithologyWorkflowHandler = new CSVLithologyWorkflowHandler();
-            lithologyWorkflowHandler.FileCollection = DescriptionFileCollection;
-            lithologyWorkflowHandler.ExportDirectory = DescriptionFileCollection.ExportDirectory;
+            DescriptionFileCollection.Filenames.ForEach(x => Console.WriteLine(x.ToString()));
 
-            var SectionCollection = new SectionInfoCollection();
-            var lithologyCache = lithologyWorkflowHandler.ImportCache(ref SectionCollection);
+                var lithologyWorkflowHandler = new CSVLithologyWorkflowHandler();
+                lithologyWorkflowHandler.FileCollection = DescriptionFileCollection;
+                lithologyWorkflowHandler.ExportDirectory = DescriptionFileCollection.ExportDirectory;
 
-            if (ProgramSettings.SendDataToDataBase)
-            {
-                var dbWorkflowHandler = new DatabaseWorkflowHandler();
-                dbWorkflowHandler.SendLithologiesToDatabase(lithologyCache);
-            }
-
-            //Reconfigure Lithologys
-            var LithCache = CacheReconfigurer.CreateDescriptionSearchHierarachy(lithologyCache);
-
-            #endregion
-
-            #region ImportMeasurementData
-            var measurementWorkFlowHandler = new CSVMeasurementWorkFlowHandler();
-            measurementWorkFlowHandler.FileCollection = new FileCollection();
-
-            foreach (string path in MeasurementFileCollection.Filenames)
-            {
-                Console.WriteLine("Processing measurement file: " + path);
-
-                measurementWorkFlowHandler.FileCollection.RemoveFiles();
-                measurementWorkFlowHandler.FileCollection.Filenames.Add(path);
-                
-                var measurementCache = measurementWorkFlowHandler.ImportCache(ref SectionCollection);
-                Console.WriteLine(string.Format("Processing {0} measurements", measurementCache.Count.ToString()));
-                // var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref lithologyCache);
-                
-                measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref LithCache);
+                var SectionCollection = new SectionInfoCollection();
+                var lithologyCache = lithologyWorkflowHandler.ImportCache(ref SectionCollection);
 
                 if (ProgramSettings.SendDataToDataBase)
                 {
                     var dbWorkflowHandler = new DatabaseWorkflowHandler();
-                    dbWorkflowHandler.SendMeasurementsToDatabase(measurementCache);
+                    dbWorkflowHandler.SendLithologiesToDatabase(lithologyCache);
                 }
 
-                if (ProgramSettings.ExportCachesToFiles)
+                //Reconfigure Lithologys
+                var LithCache = CacheReconfigurer.CreateDescriptionSearchHierarachy(lithologyCache);
+            #endregion
+
+            #region ImportMeasurementData
+                var measurementWorkFlowHandler = new CSVMeasurementWorkFlowHandler();
+                measurementWorkFlowHandler.FileCollection = new FileCollection();
+
+                foreach (string path in MeasurementFileCollection.Filenames)
                 {
-                    measurementWorkFlowHandler.ExportDirectory = MeasurementFileCollection.ExportDirectory;
-                    measurementWorkFlowHandler.ExportCache(measurementCache);
+                    Console.WriteLine("Processing measurement file: " + path);
+
+                    measurementWorkFlowHandler.FileCollection.RemoveFiles();
+                    measurementWorkFlowHandler.FileCollection.Filenames.Add(path);
+                
+                    var measurementCache = measurementWorkFlowHandler.ImportCache(ref SectionCollection);
+                    Console.WriteLine(string.Format("Processing {0} measurements", measurementCache.Count.ToString()));
+                    // var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref lithologyCache);
+                
+                    measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref LithCache);
+
+                    if (ProgramSettings.SendDataToDataBase)
+                    {
+                        var dbWorkflowHandler = new DatabaseWorkflowHandler();
+                        dbWorkflowHandler.SendMeasurementsToDatabase(measurementCache);
+                    }
+
+                    if (ProgramSettings.ExportCachesToFiles)
+                    {
+                        measurementWorkFlowHandler.ExportDirectory = MeasurementFileCollection.ExportDirectory;
+                        measurementWorkFlowHandler.ExportCache(measurementCache);
+                    }
+
+                    measurementCache = null;
+                    GC.Collect();
+                
+
+                    Console.WriteLine("The total section count is: " + SectionCollection.Sections.Count);
+                
                 }
-
-                measurementCache = null;
-                GC.Collect();
-                
-
-                Console.WriteLine("The total section count is: " + SectionCollection.Sections.Count);
-                
-            }
             #endregion
 
             Console.WriteLine("Finished processing measurement files at: " + DateTime.Now.ToString());

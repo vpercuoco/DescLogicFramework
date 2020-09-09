@@ -11,11 +11,12 @@ namespace DescLogicFramework
     /// 
     public class Interval
     {
-        [NotMapped]
-        private OffsetInfo _startOffset; 
 
         [NotMapped]
-        private OffsetInfo _endOffset; 
+        private double _startOffset = -1; 
+
+        [NotMapped]
+        private double _endOffset = -1; 
 
         [NotMapped]
         private bool _startOffsetSet = false;
@@ -27,33 +28,20 @@ namespace DescLogicFramework
         /// The top offset of the interval within the section.
         /// </summary>
         [NotMapped]
-        public OffsetInfo StartOffset { get { return _startOffset; } set{ _startOffset = value; _startOffsetSet = true; } } 
+        public double StartOffset { get { return _startOffset; } set{ _startOffset = value; _startOffsetSet = true; } } 
     
 
         /// <summary>
         /// The bottom offset of the interval within the section.
         /// </summary>
         [NotMapped]
-        public OffsetInfo EndOffset{ get {return _endOffset; } set{ _endOffset = value; _endOffsetSet = true;} }
+        public double EndOffset{ get {return _endOffset; } set{ _endOffset = value; _endOffsetSet = true;} }
 
         /// <summary>
         /// The core section identifying information.
         /// </summary>
-
-      
         public SectionInfo SectionInfo { get; set; } 
 
-        /// <summary>
-        /// Determines if an offset falls within the interval offsets.
-        /// </summary>
-        /// <param name="offset"></param>
-        /// <returns></returns>
-        public bool Contains(OffsetInfo offset)
-        {
-            _ = offset ?? throw new ArgumentNullException(nameof(offset));
-
-           return offset.Offset >= StartOffset.Offset && offset.Offset <= EndOffset.Offset && SectionInfo.Equals(offset.SectionInfo) ? true : false;      
-        }
 
         /// <summary>
         /// Determines if an interval falls completely or partially within this interval
@@ -62,20 +50,20 @@ namespace DescLogicFramework
         /// <returns></returns>
         public bool Contains(Interval interval)
         {
-            if (this.SectionInfo.Equals(interval.SectionInfo))
+            if (SectionInfo.Equals(interval.SectionInfo))
             {
                 //If the interval is totally within the lithologic description
-                if (interval.StartOffset.Offset >= StartOffset.Offset && interval.EndOffset.Offset <= EndOffset.Offset)
+                if (interval.StartOffset >= StartOffset && interval.EndOffset <= EndOffset)
                 {
                     return true;
                 }
                 //if the intervals is partially within, topside. Start <= start, End <= end, End >= start
-                else if (interval.StartOffset.Offset <= StartOffset.Offset && interval.EndOffset.Offset <= EndOffset.Offset && interval.EndOffset.Offset >= StartOffset.Offset )
+                else if (interval.StartOffset <= StartOffset && interval.EndOffset <= EndOffset && interval.EndOffset >= StartOffset )
                 {
                     return true;
                 }
                 //if the interval is partially within, bottomside. Start >= start, End >= end, Start <= end
-                else if (interval.StartOffset.Offset >= StartOffset.Offset && interval.EndOffset.Offset >= EndOffset.Offset && interval.StartOffset.Offset <= EndOffset.Offset)
+                else if (interval.StartOffset >= StartOffset && interval.EndOffset >= EndOffset && interval.StartOffset <= EndOffset)
                 {
                     return true;
                 }

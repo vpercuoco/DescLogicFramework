@@ -7,21 +7,9 @@ namespace DescLogicFramework
 {
     public class SectionInfoCollection
     {
-        public List<SectionInfo> Sections { get; set; }
+        public List<SectionInfo> Sections { get; } = new List<SectionInfo>();
 
-        public SectionInfoCollection()
-        {
-            Sections = new List<SectionInfo>();
-        }
-
-        public bool Contains(SectionInfo Section)
-        {
-            if (Sections.Where(x => Section.Equals(x)).FirstOrDefault() != null)
-            {
-                return true;
-            }
-            return false;
-        }
+        public SectionInfoCollection() { }
 
         public SectionInfo GetExistingElseAddAndGetCurrentSection(SectionInfo section)
         {

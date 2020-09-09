@@ -14,10 +14,8 @@ namespace DescLogicFramework
         /// <summary>
         /// Creates a new LithologicIDGenerator
         /// </summary>
-        public LithologicIDGenerator()
-        {
+        public LithologicIDGenerator() { }
 
-        }
         /// <summary>
         /// Returns a string ID based off the hierarchal information of a lithologic description
         /// </summary>
@@ -25,9 +23,8 @@ namespace DescLogicFramework
         /// <returns>A string representing a LithologicID</returns>
         public string GenerateID(LithologicDescription description)
         {
-            string LithologicID = "";
-
-            LithologicID = GenerateExpedition(description.SectionInfo.Expedition).ToString() +
+             
+            string LithologicID = GenerateExpedition(description.SectionInfo.Expedition).ToString() +
                 GenerateExpeditionModifier(description.SectionInfo.Expedition).ToString() +
                 GenerateSite(description.SectionInfo.Site).ToString() +
                 GenerateHole(description.SectionInfo.Hole).ToString() +
@@ -35,12 +32,12 @@ namespace DescLogicFramework
                 GenerateType(description.SectionInfo.Type).ToString() +
                 GenerateSection(description.SectionInfo.Section).ToString() +
                 GenerateSectionHalf("A") +
-                GenerateOffset(description.StartOffset.Offset.ToString()).ToString() +
-                GenerateOffset(description.EndOffset.Offset.ToString()).ToString();
+                GenerateOffset(description.StartOffset.ToString()).ToString() +
+                GenerateOffset(description.EndOffset.ToString()).ToString();
 
             description.LithologicID = LithologicID;
             return LithologicID;
-            
+
 
         }
         /// <summary>

@@ -108,8 +108,8 @@ namespace DescLogicFramework
         public Measurement(SectionInfo sectionInfo) : this()
         {
             SectionInfo = sectionInfo;
-            StartOffset = new OffsetInfo(SectionInfo);
-            EndOffset = new OffsetInfo(SectionInfo);
+           // StartOffset = new OffsetInfo(SectionInfo);
+          //  EndOffset = new OffsetInfo(SectionInfo);
             
         }
 

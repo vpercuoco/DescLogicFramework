@@ -43,8 +43,8 @@ namespace DescLogicFramework
 
                 #region GlobalSectionList
                 description.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(description.SectionInfo);
-                description.StartOffset.SectionInfo = description.SectionInfo;
-                description.EndOffset.SectionInfo = description.SectionInfo;
+               // description.StartOffset.SectionInfo = description.SectionInfo;
+               // description.EndOffset.SectionInfo = description.SectionInfo;
                 #endregion
 
                 if (!DescriptionContainsSectionInfo(description))
@@ -60,12 +60,12 @@ namespace DescLogicFramework
                 if (!StartOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
                     return LithologyCache;
 
-                description.StartOffset.Offset = parsedOffset;
+                description.StartOffset = parsedOffset;
 
                 if (!EndOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
                     return LithologyCache;
 
-                description.EndOffset.Offset = parsedOffset;
+                description.EndOffset = parsedOffset;
 
                 LithologicIDGenerator IDGenerator = new LithologicIDGenerator();
                 IDGenerator.GenerateID(description);

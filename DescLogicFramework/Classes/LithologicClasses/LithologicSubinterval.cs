@@ -16,25 +16,20 @@ namespace DescLogicFramework
 
         public int? LithologicSubID { get; set; }
 
+        //TODO: Determine if EFCore needs this reference to the Description
         public LithologicDescription LithologicDescription { get; set; }
 
-        public LithologicSubinterval()
-        {
-
-        }
+        public LithologicSubinterval() { }
 
         /// <summary>
         /// Creates a new Lithologic Subinterval
         /// </summary>
-        /// <param name="ID">An identification number for the subinterval</param>
         public LithologicSubinterval(int subID, LithologicDescription Description)
         {
             _ = Description ?? throw new ArgumentNullException(nameof(Description));
 
             LithologicSubID = subID;
             SectionInfo = Description.SectionInfo;
-            StartOffset = new OffsetInfo(Description.SectionInfo);
-            EndOffset = new OffsetInfo(Description.SectionInfo);
         }
 
         /// <summary>
@@ -43,7 +38,7 @@ namespace DescLogicFramework
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format(@"Subinterval Start:{0}, End:{1}", StartOffset.Offset, EndOffset.Offset);
+            return string.Format(@"Subinterval Start:{0}, End:{1}", StartOffset.ToString(), EndOffset.ToString());
         }
 
     }

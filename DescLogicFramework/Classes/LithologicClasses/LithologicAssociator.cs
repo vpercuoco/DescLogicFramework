@@ -43,11 +43,11 @@ namespace DescLogicFramework
         public void NotifyConsoleOfMultipleDescriptionsDetected(object sender, MultipleDescriptionsEventArgs e)
         {
             Console.WriteLine(@"Measurement has {0} descriptions!", e.DescriptionCount.ToString());
-            Console.WriteLine(@"Measurement {0}, StartOffset:{1}, EndOffset{2}", e.Measurement.SectionInfo.ToString(), e.Measurement.StartOffset.Offset.ToString(), e.Measurement.EndOffset.Offset.ToString());
+            Console.WriteLine(@"Measurement {0}, StartOffset:{1}, EndOffset{2}", e.Measurement.SectionInfo.ToString(), e.Measurement.StartOffset.ToString(), e.Measurement.EndOffset.ToString());
             int i = 1;
             foreach (LithologicDescription description in e.Descriptions)
             {
-                Console.WriteLine(@"Description {0}: {1} StartOffset:{2} EndOffset{3}", i.ToString(), description.SectionInfo.ToString(), description.StartOffset.Offset.ToString(), description.EndOffset.Offset.ToString());
+                Console.WriteLine(@"Description {0}: {1} StartOffset:{2} EndOffset{3}", i.ToString(), description.SectionInfo.ToString(), description.StartOffset.ToString(), description.EndOffset.ToString());
                 i++;
             }
             Console.WriteLine();
@@ -174,7 +174,7 @@ namespace DescLogicFramework
         private bool IsOffsetTypeMeasurement(Measurement measurement)
         {
 
-            if (measurement.StartOffset.Offset != -1 && measurement.StartOffset.Offset == measurement.EndOffset.Offset)
+            if (measurement.StartOffset != -1 && measurement.StartOffset == measurement.EndOffset)
             {
                 return true;
             }
@@ -187,7 +187,7 @@ namespace DescLogicFramework
 
         private bool IsIntervalTypeMeasurement(Measurement measurement)
         {
-            if (measurement.StartOffset.Offset != -1 && measurement.EndOffset.Offset != -1)
+            if (measurement.StartOffset != -1 && measurement.EndOffset != -1)
             {
                 return true;
             }
