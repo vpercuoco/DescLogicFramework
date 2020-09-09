@@ -30,7 +30,7 @@ namespace DescLogicFramework.DataAccess
             }
         }
 
-        public Dictionary<int, Measurement> ImportCache(ref SectionInfoCollection SectionCollection)
+        public Dictionary<int, Measurement> ImportCache(SectionInfoCollection SectionCollection)
         {
             
             string path = FileCollection.Filenames.FirstOrDefault();
@@ -42,7 +42,7 @@ namespace DescLogicFramework.DataAccess
             dtReader.ReadPath = path;
             var Measurements = ImportIODPDataTable(dtReader);
 
-            var MeasurementCache = (new MeasurementsConvertor()).Convert(Measurements, ref SectionCollection);
+            var MeasurementCache = MeasurementsConvertor.Convert(Measurements, SectionCollection);
 
             foreach (var record in MeasurementCache)
             {
@@ -52,7 +52,7 @@ namespace DescLogicFramework.DataAccess
             return MeasurementCache;
         }
 
-        public void ExportCache(Dictionary<int, Measurement> cache)
+        public void ExportToFile(Dictionary<int, Measurement> cache)
         {
             _ = cache ?? throw new ArgumentNullException(nameof(cache));
 

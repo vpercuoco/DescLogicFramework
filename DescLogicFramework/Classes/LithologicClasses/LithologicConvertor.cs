@@ -9,7 +9,7 @@ namespace DescLogicFramework
     /// <summary>
     /// Class used to create LithologicDescriptions objects from a DataTable.
     /// </summary>
-    public class LithologyConvertor
+    public static class LithologyConvertor
     {
 
         /// <summary>
@@ -17,8 +17,10 @@ namespace DescLogicFramework
         /// </summary>
         /// <param name="dataTable">The datatable to convert</param>
         /// <returns></returns>
-        public Dictionary<string, LithologicDescription> Convert(IODPDataTable dataTable, ref SectionInfoCollection SectionCollection)
+        public static Dictionary<string, LithologicDescription> Convert(IODPDataTable dataTable, SectionInfoCollection SectionCollection)
         {
+            _ = SectionCollection ?? throw new ArgumentNullException(nameof(SectionCollection));
+
             var LithologyCache = new Dictionary<string, LithologicDescription>();
           
             if (dataTable == null)
@@ -39,13 +41,9 @@ namespace DescLogicFramework
                 if (!DataRowContainsSampleIDColumn(dataTableRow, dataTable))
                     return LithologyCache;
 
-                LithologicDescription description = new LithologicDescription(dataTableRow[dataTable.SampleID].ToString());
+                LithologicDescription description = new LithologicDescription(dataTableRow[dataTable.SampleIDColumn].ToString());
 
-                #region GlobalSectionList
                 description.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(description.SectionInfo);
-               // description.StartOffset.SectionInfo = description.SectionInfo;
-               // description.EndOffset.SectionInfo = description.SectionInfo;
-                #endregion
 
                 if (!DescriptionContainsSectionInfo(description))
                     return LithologyCache;
@@ -90,10 +88,10 @@ namespace DescLogicFramework
 
         }
 
-        private bool StartOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
+        private static bool StartOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
         {
 
-            if (double.TryParse(dataTableRow[dataTable.OffsetIntervals[0]].ToString(), out parsedOffset))
+            if (double.TryParse(dataTableRow[dataTable.TopOffsetColumn].ToString(), out parsedOffset))
             {
                 return true;
             }
@@ -104,10 +102,10 @@ namespace DescLogicFramework
             }
         }
 
-        private bool EndOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
+        private static bool EndOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
         {
 
-            if (double.TryParse(dataTableRow[dataTable.OffsetIntervals[1]].ToString(), out parsedOffset))
+            if (double.TryParse(dataTableRow[dataTable.BottomOffsetColumn].ToString(), out parsedOffset))
             {
                 return true;
             }
@@ -118,9 +116,9 @@ namespace DescLogicFramework
             }
         }
 
-        private bool DataRowContainsOffsetColumns(DataRow dataTableRow, IODPDataTable dataTable)
+        private static bool DataRowContainsOffsetColumns(DataRow dataTableRow, IODPDataTable dataTable)
         {
-            if (dataTableRow.Table.Columns.Contains(dataTable.OffsetIntervals[0]) && dataTableRow.Table.Columns.Contains(dataTable.OffsetIntervals[1]))
+            if (dataTableRow.Table.Columns.Contains(dataTable.TopOffsetColumn) && dataTableRow.Table.Columns.Contains(dataTable.BottomOffsetColumn))
             {
                 return true;
             }
@@ -131,7 +129,7 @@ namespace DescLogicFramework
             }
         }
 
-        private bool DescriptionContainsSectionInfo(LithologicDescription description)
+        private static bool DescriptionContainsSectionInfo(LithologicDescription description)
         {
             //need to determine if the file is a Hole Summary, which means that there is no section identifier in the Sample Data field.
             if (description.SectionInfo.Section == null)
@@ -142,12 +140,12 @@ namespace DescLogicFramework
             return true;
         }
 
-        private bool DataRowContainsDescription(DataRow dataTableRow, IODPDataTable dataTable)
+        private static bool DataRowContainsDescription(DataRow dataTableRow, IODPDataTable dataTable)
         {
             //Reject files with no datarows
             CinnamonList noDataEntriesList = new CinnamonList("NoSampleEntries");
 
-            if (noDataEntriesList.FindInList(dataTableRow[dataTable.SampleID].ToString().ToLower()))
+            if (noDataEntriesList.FindInList(dataTableRow[dataTable.SampleIDColumn].ToString().ToLower()))
             {
                 Console.WriteLine("There are no description entries in this description file");
                 return false;
@@ -156,10 +154,10 @@ namespace DescLogicFramework
             return true;
         }
 
-        private bool DataRowContainsSampleIDColumn(DataRow dataTableRow, IODPDataTable dataTable)
+        private static bool DataRowContainsSampleIDColumn(DataRow dataTableRow, IODPDataTable dataTable)
         {
 
-            if (dataTableRow.Table.Columns.Contains(dataTable.SampleID))
+            if (dataTableRow.Table.Columns.Contains(dataTable.SampleIDColumn))
             {
                 return true;
             }

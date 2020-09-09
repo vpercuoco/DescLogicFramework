@@ -71,14 +71,12 @@ namespace DescLogicFramework
             }
         }
 
-
         /// <summary>
         /// The datarow of the Measurement within an IODP LORE Report.
         /// </summary>
         /// 
         [NotMapped]
         public DataRow DataRow { get; set; }
-
 
         /// <summary>
         /// A lithologic description in which this Measurement was taken.
@@ -100,26 +98,15 @@ namespace DescLogicFramework
         [NotMapped]
         private LithologicSubinterval _lithologicSubInterval { get; set; }
 
-        public Measurement()
-        {
+        public Measurement() { }
 
-        }
-
-        public Measurement(SectionInfo sectionInfo) : this()
-        {
-            SectionInfo = sectionInfo;
-           // StartOffset = new OffsetInfo(SectionInfo);
-          //  EndOffset = new OffsetInfo(SectionInfo);
-            
-        }
+        public Measurement(SectionInfo sectionInfo) : this() { SectionInfo = sectionInfo; }
 
         /// <summary>
         /// Duplicates a Measurement. Creates a new Measurement by copying the properties of another Measurement.
         /// </summary>
-        /// <param name="measurement">The Measurement object to copy.</param>
         public Measurement(Measurement measurement) : this(measurement?.SectionInfo ?? throw new ArgumentNullException(nameof(measurement)))
         {
-
             StartOffset = measurement.StartOffset;
             EndOffset = measurement.EndOffset;
             DataRow = measurement.DataRow;
@@ -128,8 +115,6 @@ namespace DescLogicFramework
         /// <summary>
         /// Updates a value to a column in the Measurement's Datarow  
         /// </summary>
-        /// <param name="valueToAdd">A column in the Lithologic Description DataRow</param>
-        /// <param name="columnName">A column in the Measurement's DataRow</param>
         public void AddValueToColumn(string valueToAdd, string columnName)
         {
             if (!DataRow.Table.Columns.Contains(columnName))
@@ -142,16 +127,13 @@ namespace DescLogicFramework
         /// <summary>
         /// Updates a value in the Measurement's DataRow from a column in its corresponding Lithologic Description.
         /// </summary>
-        /// <param name="Description">The Measurement's Lithologic Description</param>
-        /// <param name="descriptionColumnName">A column in the Lithologic Description DataRow</param>
-        /// <param name="columnName">A column in the Measurement's DataRow</param>
         public void AddValueToColumn(LithologicDescription Description, string descriptionColumnName, string columnName)
         {
             _ = Description ?? throw new ArgumentNullException(nameof(Description));
 
             if (Description.DataRow.Table.Columns.Contains(descriptionColumnName))
             {
-                this.AddValueToColumn(Description.DataRow[descriptionColumnName].ToString(), columnName);
+                AddValueToColumn(Description.DataRow[descriptionColumnName].ToString(), columnName);
             }
         }
     }

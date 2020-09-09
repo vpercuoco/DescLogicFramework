@@ -13,12 +13,9 @@ namespace DescLogicFramework
     {
         public string ExportDirectory { get; set; }
 
-        public FileCollection()
-        {
-            Filenames = new List<string>();
-        }
+        public FileCollection() { }
 
-        public List<string> Filenames { get; set; }
+        public List<string> Filenames { get; } = new List<string>();
 
         /// <summary>
         /// Add a collection of filepaths from a folder directory.

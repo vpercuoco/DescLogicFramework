@@ -9,7 +9,7 @@ namespace DescLogicFramework
 {
     public static class CacheReconfigurer
     {
-        public static Dictionary<SectionInfo,Dictionary<string,LithologicDescription>> CreateDescriptionSearchHierarachy(Dictionary<string, LithologicDescription> Descriptions)
+        public static Dictionary<SectionInfo,Dictionary<string,LithologicDescription>> CreateDescriptionSearchHierarchy(Dictionary<string, LithologicDescription> Descriptions)
         {
 
         return Descriptions

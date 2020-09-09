@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text;
 
 
@@ -35,10 +36,9 @@ namespace DescLogicFramework
         /// <summary>
         /// Writes the Subinterval's offsets to the console/
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
-        {
-            return string.Format(@"Subinterval Start:{0}, End:{1}", StartOffset.ToString(), EndOffset.ToString());
+        {    
+            return string.Format(CultureInfo.CurrentCulture, @"Subinterval Start:{0}, End:{1}",  StartOffset.ToString(CultureInfo.CurrentCulture), EndOffset.ToString(CultureInfo.CurrentCulture));
         }
 
     }

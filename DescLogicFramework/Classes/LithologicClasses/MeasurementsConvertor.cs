@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
-
+using System.Globalization;
 
 namespace DescLogicFramework
 {
     /// <summary>
     /// Class to create a collection of Measurements from a DataTable.
     /// </summary>
-    public class MeasurementsConvertor
+    public static class MeasurementsConvertor
     {
-
-        private Dictionary<int, Measurement> _measurements = new Dictionary<int, Measurement>();
-
-        public Dictionary<int, Measurement> Convert(IODPDataTable dataTable, ref SectionInfoCollection SectionCollection)
+        public static Dictionary<int, Measurement> Convert(IODPDataTable dataTable, SectionInfoCollection SectionCollection)
         {
+
+            _ = SectionCollection ?? throw new ArgumentNullException(nameof(SectionCollection));
+            _ = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
+
+            Dictionary<int, Measurement> _measurements = new Dictionary<int, Measurement>();
+
             int measurementCount = _measurements.Count + 1;
 
             //TODO: Ignore record if error is thrown, ex: offsets with TCON
@@ -24,43 +27,36 @@ namespace DescLogicFramework
                 SectionInfo measurementSectionInfo = new SectionInfo();
                 try
                 {
-                    measurementSectionInfo.Expedition = record[dataTable.Expedition].ToString();
-                    measurementSectionInfo.Site = record[dataTable.Site].ToString();
-                    measurementSectionInfo.Hole = record[dataTable.Hole].ToString();
-                    measurementSectionInfo.Core = record[dataTable.Core].ToString();
-                    measurementSectionInfo.Type = record[dataTable.Type].ToString();
-                    measurementSectionInfo.Section = record[dataTable.Section].ToString();
+                    measurementSectionInfo.Expedition = record[dataTable.ExpeditionColumn].ToString();
+                    measurementSectionInfo.Site = record[dataTable.SiteColumn].ToString();
+                    measurementSectionInfo.Hole = record[dataTable.HoleColumn].ToString();
+                    measurementSectionInfo.Core = record[dataTable.CoreColumn].ToString();
+                    measurementSectionInfo.Type = record[dataTable.TypeColumn].ToString();
+                    measurementSectionInfo.Section = record[dataTable.SectionColumn].ToString();
                 }
                 catch (Exception)
                 {
                     throw new IndexOutOfRangeException(nameof(record));
                 }
 
-
                 Measurement measurement = new Measurement(measurementSectionInfo);
-
-                //Determine if section is already in collection, if so get reference to the section:
-                #region GlobalSectionList
-                 measurement.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(measurement.SectionInfo);
-                // measurement.StartOffset.SectionInfo = measurement.SectionInfo;
-                // measurement.EndOffset.SectionInfo = measurement.SectionInfo;
-                #endregion
+                measurement.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(measurement.SectionInfo);
 
                 //CARB files throw error here because there isn't an offset field within the file. Ensure there is.
                 try
                 {
-                    if (!string.IsNullOrEmpty(dataTable.Offset))
+                    if (!string.IsNullOrEmpty(dataTable.OffsetColumn))
                     {
-                        measurement.StartOffset = double.Parse(record[dataTable.Offset].ToString());
-                        measurement.EndOffset = double.Parse(record[dataTable.Offset].ToString());
+                        measurement.StartOffset = double.Parse(record[dataTable.OffsetColumn].ToString(), CultureInfo.CurrentCulture);
+                        measurement.EndOffset = double.Parse(record[dataTable.OffsetColumn].ToString(), CultureInfo.CurrentCulture);
                     }
-                    if (!string.IsNullOrEmpty(dataTable.OffsetIntervals[0]))
+                    if (!string.IsNullOrEmpty(dataTable.TopOffsetColumn))
                     {
-                        measurement.StartOffset = double.Parse(record[dataTable.OffsetIntervals[0]].ToString());
+                        measurement.StartOffset = double.Parse(record[dataTable.TopOffsetColumn].ToString(), CultureInfo.CurrentCulture);
                     }
-                    if (!string.IsNullOrEmpty(dataTable.OffsetIntervals[1]))
+                    if (!string.IsNullOrEmpty(dataTable.BottomOffsetColumn))
                     {
-                        measurement.EndOffset = double.Parse(record[dataTable.OffsetIntervals[1]].ToString());
+                        measurement.EndOffset = double.Parse(record[dataTable.BottomOffsetColumn].ToString(), CultureInfo.CurrentCulture);
                     }
 
                     //If there measurement intervals overlapping description intervals then you want to duplicate measurements to the cache, and then attribute the individual descriptions to each, respectively.

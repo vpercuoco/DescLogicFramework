@@ -5,15 +5,12 @@ using System.Linq;
 
 namespace DescLogicFramework
 {
-    public class DatabaseWorkflowHandler
+    public static class DatabaseWorkflowHandler
     {
-        public DatabaseWorkflowHandler()
+        public static void SendLithologiesToDatabase(Dictionary<string, LithologicDescription> LithologyCache)
         {
+            _ = LithologyCache ?? throw new ArgumentNullException(nameof(LithologyCache));
 
-        }
-
-        public void SendLithologiesToDatabase(Dictionary<string, LithologicDescription> LithologyCache)
-        {
             DescDBContext context = null;
             try
             {
@@ -33,7 +30,6 @@ namespace DescLogicFramework
                     context = AddLithologiesToContext(context, entityToInsert, count, 100, true);
                 }
 
-
                 context.SaveChanges();
             }
             finally
@@ -43,8 +39,10 @@ namespace DescLogicFramework
             }
 
         }
-        public void SendMeasurementsToDatabase(Dictionary<int, Measurement> MeasurementCache)
+        public static void SendMeasurementsToDatabase(Dictionary<int, Measurement> MeasurementCache)
         {
+            _ = MeasurementCache ?? throw new ArgumentNullException(nameof(MeasurementCache));
+
             DescDBContext context = null;
             try
             {
@@ -68,8 +66,7 @@ namespace DescLogicFramework
                     context.Dispose();
             }
         }
-
-        private DescDBContext AddToContext<TEntity>(DescDBContext context, IEnumerable<TEntity> entities, int count, int commitCount, bool recreateContext) where TEntity : class
+        private static DescDBContext AddToContext<TEntity>(DescDBContext context, IEnumerable<TEntity> entities, int count, int commitCount, bool recreateContext) where TEntity : class
         {
             context.AddRange(entities);
 
@@ -86,8 +83,7 @@ namespace DescLogicFramework
 
             return context;
         }
-
-        private DescDBContext AddLithologiesToContext(DescDBContext context, IEnumerable<LithologicDescription> descriptions, int count, int commitCount, bool recreateContext)
+        private static DescDBContext AddLithologiesToContext(DescDBContext context, IEnumerable<LithologicDescription> descriptions, int count, int commitCount, bool recreateContext)
         {
             context.AddRange(descriptions);
 
@@ -128,10 +124,9 @@ namespace DescLogicFramework
             return context;
 
         }
-        private DescDBContext AddMeasurementsToContext(DescDBContext context, IEnumerable<Measurement> measurements, int count, int commitCount, bool recreateContext)
+        private static DescDBContext AddMeasurementsToContext(DescDBContext context, IEnumerable<Measurement> measurements, int count, int commitCount, bool recreateContext)
         {
             context.AddRange(measurements);
-
 
             //Detach all child records which already have been added otherwise I get the following error
             // Cannot insert explicit value for identity column in table ... when IDENTITY_INSERT is set to OFF.

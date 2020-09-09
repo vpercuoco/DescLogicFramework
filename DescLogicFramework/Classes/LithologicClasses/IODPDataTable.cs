@@ -4,7 +4,6 @@ using System.Text;
 using System.Data;
 using System.Linq;
 
-
 namespace DescLogicFramework
 {
     /// <summary>
@@ -12,27 +11,21 @@ namespace DescLogicFramework
     /// </summary>
     public class IODPDataTable 
     {
-        //These properties are the column headers
-        public string Expedition { get; set; } = "Exp";
-        public string Site { get; set; } = "Site";
-        public string Hole { get; set; } = "Hole";
-        public string Core { get; set; } = "Core";
-        public string Type { get; set; } = "Type";
-        public string Section { get; set; } = "Sect";
-        public string Offset { get; set; } = string.Empty;
-
-        //TODO: Change OffsetInterval array to top and bottom offsets
-        public string[] OffsetIntervals { get; set; } = { string.Empty, string.Empty };
-        public string TopOffset { get; set; } = string.Empty;
-        public string BottomOffset { get; set; } = string.Empty;
-
-        public string SampleID { get; set; } = "Sample";
+        public string ExpeditionColumn { get; set; } = "Exp";
+        public string SiteColumn { get; set; } = "Site";
+        public string HoleColumn { get; set; } = "Hole";
+        public string CoreColumn { get; set; } = "Core";
+        public string TypeColumn { get; set; } = "Type";
+        public string SectionColumn { get; set; } = "Sect";
+        public string OffsetColumn { get; set; } = string.Empty;
+        public string TopOffsetColumn { get; set; } = string.Empty;
+        public string BottomOffsetColumn { get; set; } = string.Empty;
+        public string SampleIDColumn { get; set; } = "Sample";
         public DataTable DataTable { get; set; }
 
         /// <summary>
         /// Creates a new IODPDataTable object
         /// </summary>
-        /// <param name="dataTable">A DataTable object</param>
         public IODPDataTable(DataTable dataTable)
         {
             DataTable = dataTable;
@@ -42,55 +35,53 @@ namespace DescLogicFramework
 
             CinnamonList lookupList = new CinnamonList("Expedition");
             match = lookupList.FindInList(columnNames);
-            Expedition = string.IsNullOrEmpty(match)? Expedition : match;
+            ExpeditionColumn = string.IsNullOrEmpty(match)? ExpeditionColumn : match;
             
             lookupList = new CinnamonList("Site");
             match = lookupList.FindInList(columnNames);
-            Site = string.IsNullOrEmpty(match) ? Site : match;
+            SiteColumn = string.IsNullOrEmpty(match) ? SiteColumn : match;
 
             lookupList = new CinnamonList("Hole");
             match = lookupList.FindInList(columnNames);
-            Hole = string.IsNullOrEmpty(match) ? Hole : match;
+            HoleColumn = string.IsNullOrEmpty(match) ? HoleColumn : match;
 
             lookupList = new CinnamonList("Core");
             match = lookupList.FindInList(columnNames);
-            Core = string.IsNullOrEmpty(match) ? Core : match;
+            CoreColumn = string.IsNullOrEmpty(match) ? CoreColumn : match;
 
             lookupList = new CinnamonList("Type");
             match = lookupList.FindInList(columnNames);
-            Type = string.IsNullOrEmpty(match) ? Type : match;
+            TypeColumn = string.IsNullOrEmpty(match) ? TypeColumn : match;
 
             lookupList = new CinnamonList("Section");
             match = lookupList.FindInList(columnNames);
-            Section = string.IsNullOrEmpty(match) ? Section : match;
+            SectionColumn = string.IsNullOrEmpty(match) ? SectionColumn : match;
 
             lookupList = new CinnamonList("Offset");
             match = lookupList.FindInList(columnNames);
-            Offset = string.IsNullOrEmpty(match) ? Offset : match;
+            OffsetColumn = string.IsNullOrEmpty(match) ? OffsetColumn : match;
 
             lookupList = new CinnamonList("TopOffset");
             match = lookupList.FindInList(columnNames);
-            OffsetIntervals[0] = string.IsNullOrEmpty(match) ? OffsetIntervals[0] : match;
+            TopOffsetColumn = string.IsNullOrEmpty(match) ? TopOffsetColumn : match;
 
             lookupList = new CinnamonList("BottomOffset");
             match = lookupList.FindInList(columnNames);
-            OffsetIntervals[1] = string.IsNullOrEmpty(match) ? OffsetIntervals[1] : match;
+            BottomOffsetColumn = string.IsNullOrEmpty(match) ? BottomOffsetColumn : match;
 
             lookupList = new CinnamonList("SampleID");
             match = lookupList.FindInList(columnNames);
-            SampleID = string.IsNullOrEmpty(match) ? SampleID : match;
+            SampleIDColumn = string.IsNullOrEmpty(match) ? SampleIDColumn : match;
 
         }
 
         /// <summary>
         /// Returns a list of the column names of a Datatable
         /// </summary>
-        /// <param name="dataTable">The DataTable in which to search</param>
-        /// <returns>A List of strings</returns>
-        public List<string> GetColumnNames(DataTable dataTable)
+        private static List<string> GetColumnNames(DataTable dataTable)
         {
-
             List<string> columnNames = new List<string>();
+
             foreach(DataColumn dataColumn in dataTable.Columns)
             {
                 columnNames.Add(dataColumn.ColumnName);

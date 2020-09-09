@@ -14,18 +14,15 @@ namespace DescLogicFramework.DataAccess
     public class CSVLithologyWorkflowHandler : DataFileWorkFlowHandler<LithologicDescription>
     {
         public FileCollection FileCollection { get; set; }
-
         public string ExportFileName {get; set;}
         public string ExportDirectory { get; set; }
 
-
-        public Dictionary<string, LithologicDescription> ImportCache(ref SectionInfoCollection SectionCollection)
+        public Dictionary<string, LithologicDescription> ImportCache(SectionInfoCollection SectionCollection)
         {
 
             var LithologyCache = new Dictionary<string, LithologicDescription>();
-            var LithologyConvertor = new LithologyConvertor();
 
-            var dtReader = new CSVReader();
+            var dataTableReader = new CSVReader();
 
             foreach (string path in FileCollection.Filenames)
             {
@@ -34,13 +31,11 @@ namespace DescLogicFramework.DataAccess
                 string filename = path.Split(@"\").Last();
                 string[] metaData = filename.Split("_");
 
-                
-                dtReader.ReadPath = path;
-                var lithologyDataTable = ImportIODPDataTable(dtReader);
+                dataTableReader.ReadPath = path;
+
+                var lithologyDataTable = ImportIODPDataTable(dataTableReader);
                   
-                var ConvertedLithologyCache = LithologyConvertor.Convert(lithologyDataTable, ref SectionCollection);
-
-
+                var ConvertedLithologyCache = LithologyConvertor.Convert(lithologyDataTable, SectionCollection);
 
                 foreach (var record in ConvertedLithologyCache)
                 {
@@ -52,14 +47,14 @@ namespace DescLogicFramework.DataAccess
 
                 if (ProgramSettings.ExportCachesToFiles)
                 {
-                    ExportCache(ConvertedLithologyCache);
+                    ExportToFile(ConvertedLithologyCache);
                 }
             }
 
             return LithologyCache;
         }
 
-        public void ExportCache(Dictionary<string, LithologicDescription> lithologyCache)
+        public void ExportToFile(Dictionary<string, LithologicDescription> lithologyCache)
         {
             _ = lithologyCache ?? throw new ArgumentNullException(nameof(lithologyCache));
 

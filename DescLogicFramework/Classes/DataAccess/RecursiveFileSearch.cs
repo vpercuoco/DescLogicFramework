@@ -47,16 +47,6 @@ namespace DescLogicFramework
 
             }
             return Directory.GetFiles(directory, extension);
-
-            /* //Write out all the files that could not be processed.
-             Console.WriteLine("Files with restricted access");
-             foreach (string s in log)
-             {
-                 Console.WriteLine(s);
-             }
-             //Keep the console window open in debug mode
-             Console.WriteLine("Press any key");
-             Console.ReadKey();*/
         }
 
         /// <summary>
