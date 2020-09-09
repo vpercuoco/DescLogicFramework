@@ -17,7 +17,29 @@ namespace DescLogicFramework
         [Key]
         public int ID { get; set; }
       
-        public List<MeasurementColumnValuePair> Data { get; set; } = new List<MeasurementColumnValuePair>();
+      //  public List<MeasurementColumnValuePair> Data { get; set; } = new List<MeasurementColumnValuePair>();
+
+        [NotMapped]
+        private List<MeasurementColumnValuePair> _backing = new List<MeasurementColumnValuePair>();
+
+        public List<MeasurementColumnValuePair> Data
+        {
+            get
+            {
+                if (_backing.Count == 0)
+                {
+                    foreach (DataColumn column in DataRow.Table.Columns)
+                    {
+                        var pair = new MeasurementColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
+                        pair.LithologicID = this.LithologicID;
+                        pair.LithologicSubID = this.LithologicSubID;
+                        _backing.Add(pair);
+                    }
+
+                }
+                return _backing;
+            }
+        }
 
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
@@ -35,49 +57,27 @@ namespace DescLogicFramework
 
         #endregion
 
-        //[MaxLength(50)]
-        //[Column(TypeName = "int")]
-       // [NotMapped]
         public LithologicSubinterval LithologicSubinterval
         {
             get { return _lithologicSubInterval; }
             set
             {
                 _lithologicSubInterval = value;
-
                 if (value != null)
                 {
-                    this.LithologicSubID = value.LithologicSubID;
-                    foreach (var item in this.Data)
-                    {
-                        item.LithologicSubID = value.LithologicSubID;
-                    }
+                   LithologicSubID = value.LithologicSubID;
                 }
+              
             }
         }
 
-        [NotMapped]
-        private DataRow _dataRow;
 
         /// <summary>
         /// The datarow of the Measurement within an IODP LORE Report.
         /// </summary>
         /// 
         [NotMapped]
-        public DataRow DataRow
-        {
-            get { return _dataRow; }
-            set
-            {
-                _dataRow = value;
-
-                foreach (DataColumn column in value.Table.Columns)
-                {
-
-                    Data.Add(new MeasurementColumnValuePair() { ColumnName = column.ColumnName, Value = value[column].ToString() });
-                }
-            }
-        }
+        public DataRow DataRow { get; set; }
 
 
         /// <summary>
@@ -89,11 +89,7 @@ namespace DescLogicFramework
             set { _lithologicDescription = value ;
                 if (value != null)
                 {
-                    this.LithologicID = value.LithologicID;
-                    foreach (var item in this.Data)
-                    {
-                        item.LithologicID = value.LithologicID;
-                    }
+                    LithologicID = value.LithologicID;
                 } 
             } 
         }

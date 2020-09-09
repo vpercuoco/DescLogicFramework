@@ -35,13 +35,6 @@ namespace DescLogicFramework
                 Descriptions = new List<LithologicDescription>();
             }
         }
-
-
-
-
-        /// <summary>
-        /// Creates a new Lithologic Associator object
-        /// </summary>
         public LithologicAssociator()
         {
             //   this.MultipleDescriptionsDetected += NotifyConsoleOfMultipleDescriptionsDetected;
@@ -66,7 +59,7 @@ namespace DescLogicFramework
         /// <param name="Measurements">The cache of measurements</param>
         /// <param name="Descriptions">The cache of Lithologic Descriptions</param>
         /// <returns>A cache of Measurements</returns>
-        public Dictionary<int, Measurement> Associate(ref Dictionary<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
+        public void Associate(ref Dictionary<int, Measurement> Measurements, ref Dictionary<SectionInfo, Dictionary<string, LithologicDescription>> Descriptions)
         {
             if (Measurements.Count > 0)
             {
@@ -89,7 +82,6 @@ namespace DescLogicFramework
                 Console.WriteLine(string.Format("Could not find lithologic subintervals for {0} of measurements with associated lithologic descriptions.", nonMatchSubintervals.ToString()));
 
             }
-            return Measurements;
         }
 
 

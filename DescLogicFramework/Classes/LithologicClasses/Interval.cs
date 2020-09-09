@@ -12,10 +12,10 @@ namespace DescLogicFramework
     public class Interval
     {
         [NotMapped]
-        private OffsetInfo _startOffset; //= new OffsetInfo();
+        private OffsetInfo _startOffset; 
 
         [NotMapped]
-        private OffsetInfo _endOffset; //= new OffsetInfo();
+        private OffsetInfo _endOffset; 
 
         [NotMapped]
         private bool _startOffsetSet = false;
@@ -52,14 +52,7 @@ namespace DescLogicFramework
         {
             _ = offset ?? throw new ArgumentNullException(nameof(offset));
 
-            if (offset.Offset >= this.StartOffset.Offset && offset.Offset <= this.EndOffset.Offset && this.SectionInfo.Equals(offset.SectionInfo))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+           return offset.Offset >= StartOffset.Offset && offset.Offset <= EndOffset.Offset && SectionInfo.Equals(offset.SectionInfo) ? true : false;      
         }
 
         /// <summary>
@@ -72,17 +65,17 @@ namespace DescLogicFramework
             if (this.SectionInfo.Equals(interval.SectionInfo))
             {
                 //If the interval is totally within the lithologic description
-                if (interval.StartOffset.Offset >= this.StartOffset.Offset && interval.EndOffset.Offset <= this.EndOffset.Offset)
+                if (interval.StartOffset.Offset >= StartOffset.Offset && interval.EndOffset.Offset <= EndOffset.Offset)
                 {
                     return true;
                 }
                 //if the intervals is partially within, topside. Start <= start, End <= end, End >= start
-                else if (interval.StartOffset.Offset <= this.StartOffset.Offset && interval.EndOffset.Offset <= this.EndOffset.Offset && interval.EndOffset.Offset >= this.StartOffset.Offset )
+                else if (interval.StartOffset.Offset <= StartOffset.Offset && interval.EndOffset.Offset <= EndOffset.Offset && interval.EndOffset.Offset >= StartOffset.Offset )
                 {
                     return true;
                 }
                 //if the interval is partially within, bottomside. Start >= start, End >= end, Start <= end
-                else if (interval.StartOffset.Offset >= this.StartOffset.Offset && interval.EndOffset.Offset >= this.EndOffset.Offset && interval.StartOffset.Offset <= this.EndOffset.Offset)
+                else if (interval.StartOffset.Offset >= StartOffset.Offset && interval.EndOffset.Offset >= EndOffset.Offset && interval.StartOffset.Offset <= EndOffset.Offset)
                 {
                     return true;
                 }
@@ -104,14 +97,7 @@ namespace DescLogicFramework
         /// <returns></returns>
         public bool OffsetsSet()
         {
-            if (_startOffsetSet == true && _endOffsetSet == true)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return _startOffsetSet == true && _endOffsetSet == true ? true : false;
         }
     }
 }

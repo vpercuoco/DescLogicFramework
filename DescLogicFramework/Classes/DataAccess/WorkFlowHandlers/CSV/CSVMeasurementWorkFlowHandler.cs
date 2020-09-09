@@ -76,17 +76,17 @@ namespace DescLogicFramework.DataAccess
         /// <param name="measurementCache"></param>
         /// <param name="lithologyCache"></param>
         /// <returns></returns>
-        public Dictionary<int, Measurement> UpdateMeasurementCacheWithLithologicDescriptions(ref Dictionary<int, Measurement> measurementCache, ref Dictionary<SectionInfo, Dictionary<string,LithologicDescription>> lithologyCache)
+        public void UpdateMeasurementCacheWithLithologicDescriptions(ref Dictionary<int, Measurement> measurementCache, ref Dictionary<SectionInfo, Dictionary<string,LithologicDescription>> lithologyCache)
         {
-            var associatedMeasurements = (new LithologicAssociator()).Associate(ref measurementCache, ref lithologyCache);
+           (new LithologicAssociator()).Associate(ref measurementCache, ref lithologyCache);
 
             //Set LithologicID, and LithologicSubIDs as new columns in datatable
-            if (associatedMeasurements.Count > 1)
+            if (measurementCache.Count > 1)
             {
-                associatedMeasurements[1].DataRow.Table.Columns.Add("LithologicID_VP", typeof(string)).SetOrdinal(0);
-                associatedMeasurements[1].DataRow.Table.Columns.Add("LithologicSubID_VP", typeof(string)).SetOrdinal(1);
+                measurementCache[1].DataRow.Table.Columns.Add("LithologicID_VP", typeof(string)).SetOrdinal(0);
+                measurementCache[1].DataRow.Table.Columns.Add("LithologicSubID_VP", typeof(string)).SetOrdinal(1);
 
-                foreach (var record in associatedMeasurements)
+                foreach (var record in measurementCache)
                 {
                     record.Value.DataRow.BeginEdit();
                     if (record.Value.LithologicDescription != null)
@@ -112,7 +112,6 @@ namespace DescLogicFramework.DataAccess
                     }
                 }
             }
-            return associatedMeasurements;
         }
     }
 }

@@ -52,10 +52,10 @@ namespace DescLogicFramework
                 //context.Configuration.AutoDetectChangesEnabled = false;
 
                 int count = 0;
-                var descriptionList = MeasurementCache.Values.Where(x => x.LithologicSubID.HasValue);
-                for (int i = 0; i < descriptionList.Count(); i = i + 100)
+                var measurementList = MeasurementCache.Values.Where(x => x.LithologicSubID.HasValue);
+                for (int i = 0; i < measurementList.Count(); i = i + 100)
                 {
-                    var entityToInsert = descriptionList.Skip(i).Take(100);
+                    var entityToInsert = measurementList.Skip(i).Take(100);
                     count = 100;
                     context = AddMeasurementsToContext(context, entityToInsert, count, 100, true);
                 }

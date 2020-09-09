@@ -115,21 +115,22 @@ namespace DescLogicFramework
                 var measurementCache = measurementWorkFlowHandler.ImportCache(ref SectionCollection);
                 Console.WriteLine(string.Format("Processing {0} measurements", measurementCache.Count.ToString()));
                 // var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref lithologyCache);
-                var associatedMeasurementCache = measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref LithCache);
+                
+                measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref LithCache);
+
                 if (ProgramSettings.SendDataToDataBase)
                 {
                     var dbWorkflowHandler = new DatabaseWorkflowHandler();
-                    dbWorkflowHandler.SendMeasurementsToDatabase(associatedMeasurementCache);
+                    dbWorkflowHandler.SendMeasurementsToDatabase(measurementCache);
                 }
 
                 if (ProgramSettings.ExportCachesToFiles)
                 {
                     measurementWorkFlowHandler.ExportDirectory = MeasurementFileCollection.ExportDirectory;
-                    measurementWorkFlowHandler.ExportCache(associatedMeasurementCache);
+                    measurementWorkFlowHandler.ExportCache(measurementCache);
                 }
 
                 measurementCache = null;
-                associatedMeasurementCache = null;
                 GC.Collect();
                 
 

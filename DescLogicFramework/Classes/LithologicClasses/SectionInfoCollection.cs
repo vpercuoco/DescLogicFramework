@@ -7,7 +7,6 @@ namespace DescLogicFramework
 {
     public class SectionInfoCollection
     {
-
         public List<SectionInfo> Sections { get; set; }
 
         public SectionInfoCollection()

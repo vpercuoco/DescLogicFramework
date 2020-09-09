@@ -38,46 +38,39 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(100)")]
         public string DescriptionType { get; set; } = "";
 
-        public List<DescriptionColumnValuePair> Data { get; set; } = new List<DescriptionColumnValuePair>();
+        [NotMapped]
+        private List<DescriptionColumnValuePair> _backing = new List<DescriptionColumnValuePair>();
+
+        public List<DescriptionColumnValuePair> Data
+        {
+            get
+            {
+                if (_backing.Count == 0)
+                {
+                    foreach (DataColumn column in DataRow.Table.Columns)
+                    {
+                        var pair = new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
+                        _backing.Add(pair);
+                    }
+
+                }
+                return _backing;
+            }
+        }
 
         #endregion
 
 
-        // [Key]
-        //  public int ID { get; set; }
+        [NotMapped]
+        private double _resolution = 1; //Default resolution of 1cm
+
+        public List<LithologicSubinterval> LithologicSubintervals { get; set; } = new List<LithologicSubinterval>();
 
         [NotMapped]
-        private DataRow _dataRow;
-
-        //Default resolution of 1cm
-        [NotMapped]
-        private double _resolution = 1;
-
-        public List<LithologicSubinterval> LithologicSubintervals
-        {
-            get { return _lithologicSubintervals; }
-
-            set { _lithologicSubintervals = value; }
-
-        }
-
-        private List<LithologicSubinterval> _lithologicSubintervals;// = new List<LithologicSubinterval>();
+        public DataRow DataRow { get; set; }
 
 
-        [NotMapped]
-        public DataRow DataRow {
-            get { return _dataRow; }
-            set {
-                _dataRow = value;
-
-                foreach (DataColumn column in value.Table.Columns)
-                {
-                    
-                    Data.Add(new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = value[column].ToString() });
-                }
-            }
-        }
-
+        //TODO: Might as well get rid of offsetinfo objects and just implement offset properties in Measurments and Descriptions
         /// <summary>
         /// Instantiates a new Lithologic Description
         /// </summary>
@@ -86,9 +79,8 @@ namespace DescLogicFramework
             SectionInfo = new SectionInfo();
             StartOffset = new OffsetInfo(SectionInfo);
             EndOffset = new OffsetInfo(SectionInfo);
-
-            _lithologicSubintervals = new List<LithologicSubinterval>();
         }
+
         /// <summary>
         /// Instantiates a new Lithologic Description 
         /// </summary>
@@ -96,19 +88,14 @@ namespace DescLogicFramework
         public LithologicDescription(string SampleID) : this()
         {
             SectionInfo.ParseSampleID(SampleID);
-          //  DescriptionSectionInfo = this.SectionInfo;
         }
 
         /// <summary>
         /// Returns the Lithologic Subinterval for an offset within the bounds of this Lithologic Description.
         /// </summary>
-        /// <param name="offsetInfo">The OffsetInfo to reference</param>
-        /// <returns>LithologicSubinterval</returns>
         public LithologicSubinterval GetSubinterval(Interval interval)
         {
-
-            LithologicSubinterval query = _lithologicSubintervals.FirstOrDefault(z => z.Contains(interval));
-            return query;
+            return LithologicSubintervals.FirstOrDefault(z => z.Contains(interval)); 
         }
 
 
@@ -117,7 +104,7 @@ namespace DescLogicFramework
         /// </summary>
         public void GenerateSubintervals()
         {
-            int subintervalCount = (int)Math.Ceiling((this.EndOffset.Offset - this.StartOffset.Offset) / _resolution);
+            int subintervalCount = (int)Math.Ceiling((EndOffset.Offset - StartOffset.Offset) / _resolution);
 
             for (int currentSubintervalID = 1; currentSubintervalID <= subintervalCount; currentSubintervalID++)
             {
@@ -125,10 +112,10 @@ namespace DescLogicFramework
 
                 //Problem here is that you possibly create an extra longer interval because of the rounding error with the resolution and interval start-end distance.
                 //I'll leave it in because the measurement is based off the Description Interval--which is correct. The subinterval offsets are not output to file.
-                subinterval.StartOffset.Offset = this.StartOffset.Offset + _resolution*(currentSubintervalID-1);
-                subinterval.EndOffset.Offset = this.StartOffset.Offset + _resolution * currentSubintervalID;
+                subinterval.StartOffset.Offset = StartOffset.Offset + _resolution*(currentSubintervalID-1);
+                subinterval.EndOffset.Offset = StartOffset.Offset + _resolution * currentSubintervalID;
                 //need to determine how subintervals will be uniquely named
-                _lithologicSubintervals.Add(subinterval);
+                LithologicSubintervals.Add(subinterval);
             }
         }
 

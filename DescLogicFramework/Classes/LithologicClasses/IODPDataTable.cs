@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
+using System.Linq;
 
 
 namespace DescLogicFramework
@@ -19,7 +20,11 @@ namespace DescLogicFramework
         public string Type { get; set; } = "Type";
         public string Section { get; set; } = "Sect";
         public string Offset { get; set; } = string.Empty;
+
+        //TODO: Change OffsetInterval array to top and bottom offsets
         public string[] OffsetIntervals { get; set; } = { string.Empty, string.Empty };
+        public string TopOffset { get; set; } = string.Empty;
+        public string BottomOffset { get; set; } = string.Empty;
 
         public string SampleID { get; set; } = "Sample";
         public DataTable DataTable { get; set; }
@@ -27,13 +32,13 @@ namespace DescLogicFramework
         /// <summary>
         /// Creates a new IODPDataTable object
         /// </summary>
-        /// <param name="dt">A DataTable object</param>
-        public IODPDataTable(DataTable dt)
+        /// <param name="dataTable">A DataTable object</param>
+        public IODPDataTable(DataTable dataTable)
         {
-            DataTable = dt;
+            DataTable = dataTable;
 
-            List<string> columnNames = getColumnNames(dt);
-            string match = null;
+            List<string> columnNames = GetColumnNames(dataTable);
+            string match = string.Empty;
 
             CinnamonList lookupList = new CinnamonList("Expedition");
             match = lookupList.FindInList(columnNames);
@@ -80,14 +85,15 @@ namespace DescLogicFramework
         /// <summary>
         /// Returns a list of the column names of a Datatable
         /// </summary>
-        /// <param name="dt">The DataTable in which to search</param>
+        /// <param name="dataTable">The DataTable in which to search</param>
         /// <returns>A List of strings</returns>
-        public List<string> getColumnNames(DataTable dt)
+        public List<string> GetColumnNames(DataTable dataTable)
         {
+
             List<string> columnNames = new List<string>();
-            foreach(DataColumn dc in dt.Columns)
+            foreach(DataColumn dataColumn in dataTable.Columns)
             {
-                columnNames.Add(dc.ColumnName);
+                columnNames.Add(dataColumn.ColumnName);
             }
             return columnNames;
         }

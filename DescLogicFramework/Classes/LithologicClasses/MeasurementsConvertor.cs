@@ -41,9 +41,9 @@ namespace DescLogicFramework
 
                 //Determine if section is already in collection, if so get reference to the section:
                 #region GlobalSectionList
-                measurement.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(measurement.SectionInfo);
-                measurement.StartOffset.SectionInfo = measurement.SectionInfo;
-                measurement.EndOffset.SectionInfo = measurement.SectionInfo;
+                 measurement.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(measurement.SectionInfo);
+                 measurement.StartOffset.SectionInfo = measurement.SectionInfo;
+                 measurement.EndOffset.SectionInfo = measurement.SectionInfo;
                 #endregion
 
                 //CARB files throw error here because there isn't an offset field within the file. Ensure there is.
@@ -51,7 +51,6 @@ namespace DescLogicFramework
                 {
                     if (!string.IsNullOrEmpty(dataTable.Offset))
                     {
-                        //measurement.OffsetInfo.Offset = double.Parse(record[dt.Offset].ToString());
                         measurement.StartOffset.Offset = double.Parse(record[dataTable.Offset].ToString());
                         measurement.EndOffset.Offset = double.Parse(record[dataTable.Offset].ToString());
                     }
