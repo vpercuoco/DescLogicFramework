@@ -54,12 +54,13 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(100)")]
         public string InstrumentSystem { get; set; } = "";
 
+        [NotMapped]
         public LithologicSubinterval LithologicSubinterval { get; set; }
 
         /// <summary>
         /// The collection of measurements contained within this subinterval
         /// </summary>
-        public virtual ICollection<LithologicSubinterval> LithologicSubintervals { get; set; }
+        public ICollection<LithologicSubinterval> LithologicSubintervals { get; set; }
 
         #endregion
 
@@ -75,7 +76,10 @@ namespace DescLogicFramework
         [NotMapped]
         public LithologicDescription LithologicDescription { get; set; } 
 
-        public Measurement() { }
+        public Measurement() 
+        {
+            LithologicSubintervals = new HashSet<LithologicSubinterval>();
+        }
 
         public Measurement(SectionInfo sectionInfo) : this() { SectionInfo = sectionInfo; }
 

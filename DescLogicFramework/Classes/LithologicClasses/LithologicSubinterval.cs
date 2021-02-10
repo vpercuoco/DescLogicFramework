@@ -17,27 +17,26 @@ namespace DescLogicFramework
 
         public int? LithologicSubID { get; set; }
 
-        //TODO: Determine if EFCore needs this reference to the Description
         public LithologicDescription LithologicDescription { get; set; }
 
-        public LithologicSubinterval() { }
+        public ICollection<Measurement> Measurements { get; set; }
+
+
+        public LithologicSubinterval() 
+        {
+            Measurements = new HashSet<Measurement>();        
+        }
 
         /// <summary>
         /// Creates a new Lithologic Subinterval
         /// </summary>
-        public LithologicSubinterval(int subID, LithologicDescription Description)
+        public LithologicSubinterval(int subID, LithologicDescription Description) : this()
         {
             _ = Description ?? throw new ArgumentNullException(nameof(Description));
 
             LithologicSubID = subID;
             SectionInfo = Description.SectionInfo;
         }
-
-        /// <summary>
-        /// The collection of measurements contained within this subinterval
-        /// </summary>
-        public virtual ICollection<Measurement> Measurements { get; set; }
-
 
         /// <summary>
         /// Writes the Subinterval's offsets to the console/

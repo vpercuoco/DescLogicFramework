@@ -2,7 +2,7 @@
 
 namespace DescLogicFramework.Migrations
 {
-    public partial class FirstMigration : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -10,16 +10,18 @@ namespace DescLogicFramework.Migrations
                 name: "Sections",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Expedition = table.Column<string>(nullable: true),
-                    Site = table.Column<string>(nullable: true),
-                    Hole = table.Column<string>(nullable: true),
-                    Core = table.Column<string>(nullable: true),
-                    Type = table.Column<string>(nullable: true),
-                    Section = table.Column<string>(nullable: true),
-                    SampleID = table.Column<string>(nullable: true),
-                    SectionTextID = table.Column<int>(nullable: false)
+                    Expedition = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Site = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Hole = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Core = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Section = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SampleID = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Half = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Parent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SectionTextID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,11 +33,11 @@ namespace DescLogicFramework.Migrations
                 columns: table => new
                 {
                     LithologicID = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    SectionInfoID = table.Column<int>(nullable: true),
                     DescriptionReport = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     DescriptionTab = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     DescriptionGroup = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    DescriptionType = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                    DescriptionType = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    SectionInfoID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -49,14 +51,37 @@ namespace DescLogicFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MeasurementDescriptions",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    LithologicID = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    LithologicSubID = table.Column<int>(type: "int", nullable: true),
+                    InstrumentReport = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    InstrumentSystem = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    SectionInfoID = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MeasurementDescriptions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_MeasurementDescriptions_Sections_SectionInfoID",
+                        column: x => x.SectionInfoID,
+                        principalTable: "Sections",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DescriptionColumnValuePairs",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Value = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true),
                     ColumnName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    LithologicDescriptionLithologicID = table.Column<string>(nullable: true)
+                    LithologicDescriptionLithologicID = table.Column<string>(type: "varchar(50)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -73,11 +98,11 @@ namespace DescLogicFramework.Migrations
                 name: "LithologicSubintervals",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SectionInfoID = table.Column<int>(nullable: true),
-                    LithologicSubID = table.Column<int>(nullable: true),
-                    LithologicDescriptionLithologicID = table.Column<string>(nullable: true)
+                    LithologicSubID = table.Column<int>(type: "int", nullable: true),
+                    LithologicDescriptionLithologicID = table.Column<string>(type: "varchar(50)", nullable: true),
+                    SectionInfoID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -97,46 +122,16 @@ namespace DescLogicFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MeasurementDescriptions",
-                columns: table => new
-                {
-                    ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SectionInfoID = table.Column<int>(nullable: true),
-                    LithologicID = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    LithologicSubID = table.Column<int>(nullable: true),
-                    InstrumentReport = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    InstrumentSystem = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    LithologicSubintervalID = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MeasurementDescriptions", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_MeasurementDescriptions_LithologicSubintervals_LithologicSubintervalID",
-                        column: x => x.LithologicSubintervalID,
-                        principalTable: "LithologicSubintervals",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MeasurementDescriptions_Sections_SectionInfoID",
-                        column: x => x.SectionInfoID,
-                        principalTable: "Sections",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MeasurementColumnValuePairs",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Value = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     ColumnName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    LithologicSubID = table.Column<int>(nullable: true),
+                    LithologicSubID = table.Column<int>(type: "int", nullable: true),
                     LithologicID = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    MeasurementID = table.Column<int>(nullable: true)
+                    MeasurementID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -149,6 +144,30 @@ namespace DescLogicFramework.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "LithologicSubintervalMeasurement",
+                columns: table => new
+                {
+                    LithologicSubintervalsID = table.Column<int>(type: "int", nullable: false),
+                    MeasurementsID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LithologicSubintervalMeasurement", x => new { x.LithologicSubintervalsID, x.MeasurementsID });
+                    table.ForeignKey(
+                        name: "FK_LithologicSubintervalMeasurement_LithologicSubintervals_LithologicSubintervalsID",
+                        column: x => x.LithologicSubintervalsID,
+                        principalTable: "LithologicSubintervals",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_LithologicSubintervalMeasurement_MeasurementDescriptions_MeasurementsID",
+                        column: x => x.MeasurementsID,
+                        principalTable: "MeasurementDescriptions",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_DescriptionColumnValuePairs_LithologicDescriptionLithologicID",
                 table: "DescriptionColumnValuePairs",
@@ -158,6 +177,11 @@ namespace DescLogicFramework.Migrations
                 name: "IX_LithologicDescriptions_SectionInfoID",
                 table: "LithologicDescriptions",
                 column: "SectionInfoID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LithologicSubintervalMeasurement_MeasurementsID",
+                table: "LithologicSubintervalMeasurement",
+                column: "MeasurementsID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LithologicSubintervals_LithologicDescriptionLithologicID",
@@ -175,11 +199,6 @@ namespace DescLogicFramework.Migrations
                 column: "MeasurementID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MeasurementDescriptions_LithologicSubintervalID",
-                table: "MeasurementDescriptions",
-                column: "LithologicSubintervalID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MeasurementDescriptions_SectionInfoID",
                 table: "MeasurementDescriptions",
                 column: "SectionInfoID");
@@ -191,13 +210,16 @@ namespace DescLogicFramework.Migrations
                 name: "DescriptionColumnValuePairs");
 
             migrationBuilder.DropTable(
+                name: "LithologicSubintervalMeasurement");
+
+            migrationBuilder.DropTable(
                 name: "MeasurementColumnValuePairs");
 
             migrationBuilder.DropTable(
-                name: "MeasurementDescriptions");
+                name: "LithologicSubintervals");
 
             migrationBuilder.DropTable(
-                name: "LithologicSubintervals");
+                name: "MeasurementDescriptions");
 
             migrationBuilder.DropTable(
                 name: "LithologicDescriptions");

@@ -10,15 +10,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DescLogicFramework.Migrations
 {
     [DbContext(typeof(DescDBContext))]
-    [Migration("20200905225539_First Migration")]
-    partial class FirstMigration
+    [Migration("20210210133242_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("DescLogicFramework.DescriptionColumnValuePair", b =>
@@ -29,15 +29,15 @@ namespace DescLogicFramework.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ColumnName")
-                        .HasColumnType("varchar(50)")
-                        .HasMaxLength(50);
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("LithologicDescriptionLithologicID")
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("varchar(1000)")
-                        .HasMaxLength(1000);
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
 
                     b.HasKey("ID");
 
@@ -49,24 +49,24 @@ namespace DescLogicFramework.Migrations
             modelBuilder.Entity("DescLogicFramework.LithologicDescription", b =>
                 {
                     b.Property<string>("LithologicID")
-                        .HasColumnType("varchar(50)")
-                        .HasMaxLength(50);
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("DescriptionGroup")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("DescriptionReport")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("DescriptionTab")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("DescriptionType")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int?>("SectionInfoID")
                         .HasColumnType("int");
@@ -111,29 +111,24 @@ namespace DescLogicFramework.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("InstrumentReport")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("InstrumentSystem")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("LithologicID")
-                        .HasColumnType("varchar(50)")
-                        .HasMaxLength(50);
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<int?>("LithologicSubID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("LithologicSubintervalID")
                         .HasColumnType("int");
 
                     b.Property<int?>("SectionInfoID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("LithologicSubintervalID");
 
                     b.HasIndex("SectionInfoID");
 
@@ -148,12 +143,12 @@ namespace DescLogicFramework.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ColumnName")
-                        .HasColumnType("varchar(50)")
-                        .HasMaxLength(50);
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("LithologicID")
-                        .HasColumnType("varchar(50)")
-                        .HasMaxLength(50);
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<int?>("LithologicSubID")
                         .HasColumnType("int");
@@ -162,8 +157,8 @@ namespace DescLogicFramework.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Value")
-                        .HasColumnType("varchar(500)")
-                        .HasMaxLength(500);
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.HasKey("ID");
 
@@ -185,7 +180,13 @@ namespace DescLogicFramework.Migrations
                     b.Property<string>("Expedition")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Half")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Hole")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Parent")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SampleID")
@@ -208,6 +209,21 @@ namespace DescLogicFramework.Migrations
                     b.ToTable("Sections");
                 });
 
+            modelBuilder.Entity("LithologicSubintervalMeasurement", b =>
+                {
+                    b.Property<int>("LithologicSubintervalsID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MeasurementsID")
+                        .HasColumnType("int");
+
+                    b.HasKey("LithologicSubintervalsID", "MeasurementsID");
+
+                    b.HasIndex("MeasurementsID");
+
+                    b.ToTable("LithologicSubintervalMeasurement");
+                });
+
             modelBuilder.Entity("DescLogicFramework.DescriptionColumnValuePair", b =>
                 {
                     b.HasOne("DescLogicFramework.LithologicDescription", null)
@@ -220,6 +236,8 @@ namespace DescLogicFramework.Migrations
                     b.HasOne("DescLogicFramework.SectionInfo", "SectionInfo")
                         .WithMany()
                         .HasForeignKey("SectionInfoID");
+
+                    b.Navigation("SectionInfo");
                 });
 
             modelBuilder.Entity("DescLogicFramework.LithologicSubinterval", b =>
@@ -231,24 +249,53 @@ namespace DescLogicFramework.Migrations
                     b.HasOne("DescLogicFramework.SectionInfo", "SectionInfo")
                         .WithMany()
                         .HasForeignKey("SectionInfoID");
+
+                    b.Navigation("LithologicDescription");
+
+                    b.Navigation("SectionInfo");
                 });
 
             modelBuilder.Entity("DescLogicFramework.Measurement", b =>
                 {
-                    b.HasOne("DescLogicFramework.LithologicSubinterval", "LithologicSubinterval")
-                        .WithMany()
-                        .HasForeignKey("LithologicSubintervalID");
-
                     b.HasOne("DescLogicFramework.SectionInfo", "SectionInfo")
                         .WithMany()
                         .HasForeignKey("SectionInfoID");
+
+                    b.Navigation("SectionInfo");
                 });
 
             modelBuilder.Entity("DescLogicFramework.MeasurementColumnValuePair", b =>
                 {
                     b.HasOne("DescLogicFramework.Measurement", null)
-                        .WithMany("Data")
+                        .WithMany("MeasurementData")
                         .HasForeignKey("MeasurementID");
+                });
+
+            modelBuilder.Entity("LithologicSubintervalMeasurement", b =>
+                {
+                    b.HasOne("DescLogicFramework.LithologicSubinterval", null)
+                        .WithMany()
+                        .HasForeignKey("LithologicSubintervalsID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DescLogicFramework.Measurement", null)
+                        .WithMany()
+                        .HasForeignKey("MeasurementsID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DescLogicFramework.LithologicDescription", b =>
+                {
+                    b.Navigation("Data");
+
+                    b.Navigation("LithologicSubintervals");
+                });
+
+            modelBuilder.Entity("DescLogicFramework.Measurement", b =>
+                {
+                    b.Navigation("MeasurementData");
                 });
 #pragma warning restore 612, 618
         }
