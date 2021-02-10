@@ -22,6 +22,8 @@ namespace DescLogicFramework
         public string Type { get; set; }
         public string Section { get; set; }
         public string SampleID { get; set; }
+        public string Half { get; set; }
+        public string Parent { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int SectionTextID { get; set; }
@@ -31,10 +33,7 @@ namespace DescLogicFramework
         /// <summary>
         /// Creates a SectionInfo object using the the hierarchal information contained in a sampleID.
         /// </summary>
-        public SectionInfo(string sampleID)
-        {
-            ParseSampleID(sampleID);
-        }
+        public SectionInfo(string sampleID) { ParseSampleID(sampleID); }
 
         /// <summary>
         /// Displays a string of SectionInfo properties.
@@ -52,56 +51,91 @@ namespace DescLogicFramework
         {
             _ = sampleID ?? throw new ArgumentNullException(nameof(sampleID));
 
-            string[] f = sampleID.Split("-");
-            switch (f.Length)
+            string[] sampleIDComponents = sampleID.Split("-");
+            try
             {
-                case 0:
-                    SampleID = sampleID;
-                    Expedition = null;
-                    Site = null;
-                    Hole = null;
-                    Core = null;
-                    Type = null;
-                    Section = null;
-                    break;
-                case 1:
-                    SampleID = sampleID;
-                    Expedition = f[0]; //I may want to change in the iteration because I keep getting "No Sample" in the Exedition Column
-                    Site = null;
-                    Hole = null;
-                    Core = null;
-                    Type = null;
-                    Section = null;
-                    break;
-                case 2:
-                    SampleID = sampleID;
-                    Expedition = f[0];
-                    Site = f[1].Substring(0, f[1].Length - 1);
-                    Hole = f[1].Substring(f[1].Length - 1, 1);
-                    Core = null;
-                    Type = null;
-                    Section = null;
-                    break;
-                case 3:
-                    SampleID = sampleID;
-                    Expedition = f[0];
-                    Site = f[1].Substring(0, f[1].Length - 1);
-                    Hole = f[1].Substring(f[1].Length - 1, 1);
-                    Core = f[2].Substring(0, f[2].Length - 1);
-                    Type = f[2].Substring(f[2].Length - 1, 1);
-                    Section = null;
-                    break;
-                default:
-                    SampleID = sampleID;
-                    Expedition = f[0];
-                    Site = f[1].Substring(0, f[1].Length - 1);
-                    Hole = f[1].Substring(f[1].Length - 1, 1);
-                    Core = f[2].Substring(0, f[2].Length - 1);
-                    Type = f[2].Substring(f[2].Length - 1, 1);
-                    Section = f[3];
-                    break;
+                switch (sampleIDComponents.Length)
+                {
+                    case 0:
+                        SampleID = sampleID;
+                        Expedition = null;
+                        Site = null;
+                        Hole = null;
+                        Core = null;
+                        Type = null;
+                        Section = null;
+                        Half = null;
+                        break;
+                    case 1:
+                        SampleID = sampleID;
+                        Expedition = sampleIDComponents[0]; //I may want to change in the iteration because I keep getting "No Sample" in the Exedition Column
+                        Site = null;
+                        Hole = null;
+                        Core = null;
+                        Type = null;
+                        Section = null;
+                        Half = null;
+                        break;
+                    case 2:
+                        SampleID = sampleID;
+                        Expedition = sampleIDComponents[0];
+                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
+                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
+                        Core = null;
+                        Type = null;
+                        Section = null;
+                        Half = null;
+                        break;
+                    case 3:
+                        SampleID = sampleID;
+                        Expedition = sampleIDComponents[0];
+                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
+                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
+                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
+                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
+                        Section = null;
+                        Half = null;
+                        break;
+                    case 4:
+                        SampleID = sampleID;
+                        Expedition = sampleIDComponents[0];
+                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
+                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
+                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
+                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
+                        Section = sampleIDComponents[3];
+                        Half = null;
+                        break;
+                    case 5:
+                        SampleID = sampleID;
+                        Expedition = sampleIDComponents[0];
+                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
+                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
+                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
+                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
+                        Section = sampleIDComponents[3];
+                        Half = CleanUpSectionHalf(sampleIDComponents[4].Split(" ")[0]);
+                        break;
+                    default:
+                        SampleID = sampleID;
+                        Expedition = sampleIDComponents[0];
+                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
+                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
+                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
+                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
+                        Section = sampleIDComponents[3];
+                        Half = CleanUpSectionHalf(sampleIDComponents[4].Split(" ")[0]);
+                        break;
+                }
             }
+            catch (Exception)
+            {
+
+                throw new Exception("Error Parsing SampleID");
+            }
+            
         }
+
         /// <summary>
         /// Determines if two SectionInfo objects are identical
         /// </summary>
@@ -119,6 +153,19 @@ namespace DescLogicFramework
             else
             {
                 return false;
+            }
+        }
+
+        private string CleanUpSectionHalf(string sectionHalf)
+        {
+
+            if (sectionHalf.Contains("PAL"))
+            {
+                return "PAL";
+            }
+            else
+            {
+                return sectionHalf;
             }
         }
     }

@@ -8,10 +8,8 @@ namespace DescLogicFramework
     /// <summary>
     /// An object used to represent an interval within a section.
     /// </summary>
-    /// 
     public class Interval
     {
-
         [NotMapped]
         private double _startOffset = -1; 
 
@@ -42,7 +40,6 @@ namespace DescLogicFramework
         /// </summary>
         public SectionInfo SectionInfo { get; set; } 
 
-
         /// <summary>
         /// Determines if an interval falls completely or partially within this interval
         /// </summary>
@@ -52,17 +49,14 @@ namespace DescLogicFramework
         {
             if (SectionInfo.Equals(interval.SectionInfo))
             {
-                //If the interval is totally within the lithologic description
                 if (interval.StartOffset >= StartOffset && interval.EndOffset <= EndOffset)
                 {
                     return true;
                 }
-                //if the intervals is partially within, topside. Start <= start, End <= end, End >= start
                 else if (interval.StartOffset <= StartOffset && interval.EndOffset <= EndOffset && interval.EndOffset >= StartOffset )
                 {
                     return true;
                 }
-                //if the interval is partially within, bottomside. Start >= start, End >= end, Start <= end
                 else if (interval.StartOffset >= StartOffset && interval.EndOffset >= EndOffset && interval.StartOffset <= EndOffset)
                 {
                     return true;
@@ -82,7 +76,6 @@ namespace DescLogicFramework
         /// <summary>
         /// Returns true if a Lithologic Description has had its Offsets properties assigned 
         /// </summary>
-        /// <returns></returns>
         public bool OffsetsSet()
         {
             return _startOffsetSet == true && _endOffsetSet == true ? true : false;

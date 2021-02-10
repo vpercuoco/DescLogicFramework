@@ -13,11 +13,10 @@ namespace DescLogicFramework
     public class Measurement : Interval
     {
         #region EFCoreProperties
+        //TODO: Return a set of specified measurement key value pairs. Pretty much the measurment itself, textId, offsets, and testNo
 
         [Key]
         public int ID { get; set; }
-      
-      //  public List<MeasurementColumnValuePair> Data { get; set; } = new List<MeasurementColumnValuePair>();
 
         [NotMapped]
         private List<MeasurementColumnValuePair> _backing = new List<MeasurementColumnValuePair>();
@@ -31,8 +30,8 @@ namespace DescLogicFramework
                     foreach (DataColumn column in DataRow.Table.Columns)
                     {
                         var pair = new MeasurementColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
-                        pair.LithologicID = this.LithologicID;
-                        pair.LithologicSubID = this.LithologicSubID;
+                        pair.LithologicID = LithologicID;
+                        pair.LithologicSubID = LithologicSubID;
                         _backing.Add(pair);
                     }
 

@@ -35,7 +35,7 @@ namespace DescLogicFramework.DataAccess
 
                 var lithologyDataTable = ImportIODPDataTable(dataTableReader);
                   
-                var ConvertedLithologyCache = LithologyConvertor.Convert(lithologyDataTable, SectionCollection);
+                var ConvertedLithologyCache = LithologyConvertor.ConvertDatatableToDictionary(lithologyDataTable, SectionCollection);
 
                 foreach (var record in ConvertedLithologyCache)
                 {
@@ -66,7 +66,6 @@ namespace DescLogicFramework.DataAccess
                 var exporter = new CSVReader();
                 exporter.WritePath = ExportDirectory + ExportFileName;
                 exporter.Write(lithologyCache.Values.First().DataRow.Table);
-
 
                 Console.WriteLine("Finished exporting Lithology file " + ExportFileName);
                 Console.WriteLine();

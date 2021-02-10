@@ -21,7 +21,6 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(50)")]
         public string LithologicID { get; set; } = "-1";
 
-        //MetaData from the imported Descklogic ExcelFiles
         [MaxLength(100)]
         [Column(TypeName = "varchar(100)")]
         public string DescriptionReport { get; set; } = string.Empty;
@@ -68,7 +67,6 @@ namespace DescLogicFramework
         [NotMapped]
         public DataRow DataRow { get; set; }
 
-        //TODO: Might as well get rid of offsetinfo objects and just implement offset properties in Measurments and Descriptions
         /// <summary>
         /// Instantiates a new Lithologic Description
         /// </summary>

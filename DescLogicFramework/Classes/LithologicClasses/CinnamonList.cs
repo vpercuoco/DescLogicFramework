@@ -20,7 +20,7 @@ namespace DescLogicFramework
         /// <summary>
         /// The reference list obtained from the CinnamonList.json file.
         /// </summary>
-        public List<string> Parameters { get; set; }
+        public List<string> Parameters { get; } = new List<string>();
 
         /// <summary>
         /// Constructor for the CinnamonList. The listname parameter identifies the list to reference within the CinnamonLists.json file.
@@ -29,19 +29,17 @@ namespace DescLogicFramework
         public CinnamonList(string listName)
         {
             ListName = listName;
-            string jsonFile = File.ReadAllText(@"C:\Users\percuoco\source\repos\DescLogicFramework\DescLogicFramework\Classes\GlobalLists\CinnamonLists.json");
-            //not sure why dynamic is used here
+            //TODO: Add the location of the global list to the appsettings file
+            string jsonFile = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"\Classes\GlobalLists\CinnamonLists.json");
             dynamic json = JObject.Parse(jsonFile);
             var listParameters = json[listName];
-                //json.GetType().GetProperty(ListName);
-            Parameters = new List<string>();
+         
             Parameters = listParameters.ToObject<List<string>>();
         }
 
         /// <summary>
         /// Adds a string value to the CinnamonList
         /// </summary>
-        /// <param name="name"></param>
         public void Add(string name)
         {
             Parameters.Add(name);
@@ -58,8 +56,6 @@ namespace DescLogicFramework
         /// <summary>
         /// Determines whether a string appears in the CinnamonList.
         /// </summary>
-        /// <param name="query">The string to search for.</param>
-        /// <returns></returns>
         public bool FindInList(string query)
         {
             foreach (var name in Parameters)

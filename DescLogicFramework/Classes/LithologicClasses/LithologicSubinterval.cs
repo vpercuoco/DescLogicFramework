@@ -33,6 +33,7 @@ namespace DescLogicFramework
             SectionInfo = Description.SectionInfo;
         }
 
+
         /// <summary>
         /// Writes the Subinterval's offsets to the console/
         /// </summary>

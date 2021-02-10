@@ -40,6 +40,7 @@ namespace DescLogicFramework
                 }
 
                 Measurement measurement = new Measurement(measurementSectionInfo);
+
                 measurement.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(measurement.SectionInfo);
 
                 //CARB files throw error here because there isn't an offset field within the file. Ensure there is.
@@ -58,8 +59,7 @@ namespace DescLogicFramework
                     {
                         measurement.EndOffset = double.Parse(record[dataTable.BottomOffsetColumn].ToString(), CultureInfo.CurrentCulture);
                     }
-
-                    //If there measurement intervals overlapping description intervals then you want to duplicate measurements to the cache, and then attribute the individual descriptions to each, respectively.
+                  
                     measurement.DataRow = record;
 
                     _measurements.Add(measurementCount, measurement);
@@ -70,7 +70,6 @@ namespace DescLogicFramework
                     //throw;
                 }
             }
-
             return _measurements;
         }
     }

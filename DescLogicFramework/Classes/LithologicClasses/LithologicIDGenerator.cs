@@ -23,20 +23,31 @@ namespace DescLogicFramework
         /// <returns>A string representing a LithologicID</returns>
         public string GenerateID(LithologicDescription description)
         {
-             
-            string LithologicID = GenerateExpedition(description.SectionInfo.Expedition).ToString() +
-                GenerateExpeditionModifier(description.SectionInfo.Expedition).ToString() +
-                GenerateSite(description.SectionInfo.Site).ToString() +
-                GenerateHole(description.SectionInfo.Hole).ToString() +
-                GenerateCore(description.SectionInfo.Core).ToString() +
-                GenerateType(description.SectionInfo.Type).ToString() +
-                GenerateSection(description.SectionInfo.Section).ToString() +
-                GenerateSectionHalf("A") +
-                GenerateOffset(description.StartOffset.ToString()).ToString() +
-                GenerateOffset(description.EndOffset.ToString()).ToString();
 
-            description.LithologicID = LithologicID;
-            return LithologicID;
+            try
+            {
+                string LithologicID = GenerateExpedition(description.SectionInfo.Expedition).ToString() +
+                                    GenerateExpeditionModifier(description.SectionInfo.Expedition).ToString() +
+                                    GenerateSite(description.SectionInfo.Site).ToString() +
+                                    GenerateHole(description.SectionInfo.Hole).ToString() +
+                                    GenerateCore(description.SectionInfo.Core).ToString() +
+                                    GenerateType(description.SectionInfo.Type).ToString() +
+                                    GenerateSection(description.SectionInfo.Section).ToString() +
+                                    GenerateSectionHalf(description.SectionInfo.Half) +
+                                    GenerateOffset(description.StartOffset.ToString()).ToString() +
+                                    GenerateOffset(description.EndOffset.ToString()).ToString();
+
+                description.LithologicID = LithologicID;
+                return LithologicID;
+            }
+            catch (Exception)
+            {
+
+                throw;
+           
+            }
+
+            
 
 
         }
@@ -123,8 +134,26 @@ namespace DescLogicFramework
         private string GenerateSectionHalf(string SectionHalf)
         {
             string output = "";
-            output = (char.ToUpper(SectionHalf.ToCharArray()[0]) - 64).ToString();
-            return PadStringStart(output, 2);
+            if (SectionHalf == null)
+            {
+                return "99";
+            }
+
+            if (SectionHalf.ToLower() == "w" || SectionHalf.ToLower() == "a")
+            {
+
+                output = (char.ToUpper(SectionHalf.ToCharArray()[0]) - 64).ToString();
+                return PadStringStart(output, 2);
+            }
+            else if (SectionHalf.ToLower()=="PAL")
+            {
+                return "90";
+            }
+            else
+            {
+                return "91";
+            }
+            
         }
         public string GenerateOffset(string Offset)
         {

@@ -11,6 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Transactions;
 using System.Globalization;
+using Serilog;
+using Serilog.Sinks;
+using Serilog.Sinks.File;
+
+
 
 namespace DescLogicFramework
 {
@@ -18,12 +23,38 @@ namespace DescLogicFramework
     {
         static void Main(string[] args)
         {
+            
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File(ConfigurationManager.AppSettings["LogFileLocation"])
+                .CreateLogger();
+
+
+            var list = new CinnamonList("ExpeditionList").Parameters;
+            list.Reverse();
+   
+            foreach (var expedition in list)
+            {
+                DescriptionFileCleaner cleaner = new DescriptionFileCleaner(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\AGU2019\" + expedition + @"\output\extracted_csv", expedition);
+            }
+
+
+
+            Log.CloseAndFlush();
+
+
+
             Console.WriteLine("Starting up at " + DateTime.Now.ToString());
 
             var conn = ConfigurationManager.ConnectionStrings["DBconnection"];
 
-            ProgramSettings.SendDataToDataBase = false;
-            ProgramSettings.ExportCachesToFiles = true;
+            ProgramSettings.SendDataToDESCDataBase = false;
+
+            ProgramSettings.SendDataToLithologyDataBase = false;
+
+            ProgramSettings.ExportCachesToFiles = false;
+
+            ProgramSettings.ProcessMeaurements = false;
 
             _ = new ProgramWorkFlowHandler();
             Console.WriteLine("Program finished at " + DateTime.Now.ToString(CultureInfo.CurrentCulture));
@@ -33,8 +64,10 @@ namespace DescLogicFramework
 
     public static class ProgramSettings
     {
-        public static bool SendDataToDataBase { get; set; } = false;
+        public static bool SendDataToDESCDataBase { get; set; } = false;
+        public static bool SendDataToLithologyDataBase { get; set; } = false;
         public static bool ExportCachesToFiles { get; set; } = false;
+        public static bool ProcessMeaurements { get; set; } = false;
     }
     public class ProgramWorkFlowHandler
     {
@@ -53,7 +86,7 @@ namespace DescLogicFramework
 
                 descriptionFileCollection.AddFiles(@"C:\Users\percuoco\Desktop\AGU2019\AGU2019\" + expedition + @"\output\extracted_csv", "*.csv");
                 descriptionFileCollection.ExportDirectory = ConfigurationManager.AppSettings["ExportDirectory"] + expedition + @"\Lithology\";
-                descriptionFileCollection.Filenames.RemoveAll(x => !x.ToLower().Contains("general_macroscopic_macroscopic"));
+                descriptionFileCollection.Filenames.RemoveAll(x => !x.ToLower().Contains("sediment_macroscopic"));
 
                 FileCollection measurementFileCollection = new FileCollection();
 
@@ -89,9 +122,15 @@ namespace DescLogicFramework
 
             var lithologyCache = lithologyWorkflowHandler.ImportCache(SectionCollection);
 
-            if (ProgramSettings.SendDataToDataBase)
+            if (ProgramSettings.SendDataToDESCDataBase)
             {
                 DatabaseWorkflowHandler.SendLithologiesToDatabase(lithologyCache);
+            }
+            if (ProgramSettings.SendDataToLithologyDataBase)
+            {
+                //Need to specify which columns to keep, ex is for x375
+                List<string> acceptableColumns = new List<string>() { "LITHOLOGY PREFIX", "Lithology principal name", "Lithology SUFFIX" };
+                LithologyDatabaseWorkflowHandler.SendLithologiesToDataBase(lithologyCache, acceptableColumns);
             }
 
             var LithCache = CacheReconfigurer.CreateDescriptionSearchHierarchy(lithologyCache);
@@ -99,6 +138,12 @@ namespace DescLogicFramework
             #endregion
 
             #region ImportMeasurementData
+
+            if (ProgramSettings.ProcessMeaurements == false)
+            {
+                Console.WriteLine("Finished processing files at: " + DateTime.Now.ToString());
+                return;
+            }
             var measurementWorkFlowHandler = new CSVMeasurementWorkFlowHandler();
             measurementWorkFlowHandler.FileCollection = new FileCollection();
 
@@ -113,9 +158,9 @@ namespace DescLogicFramework
 
                 Console.WriteLine(string.Format(CultureInfo.CurrentCulture, "Processing {0} measurements", measurementCache.Count.ToString(CultureInfo.CurrentCulture)));
 
-                measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions(ref measurementCache, ref LithCache);
+                measurementWorkFlowHandler.UpdateMeasurementCacheWithLithologicDescriptions( measurementCache, LithCache);
 
-                if (ProgramSettings.SendDataToDataBase)
+                if (ProgramSettings.SendDataToDESCDataBase)
                 {
                     DatabaseWorkflowHandler.SendMeasurementsToDatabase(measurementCache);
                 }
@@ -149,15 +194,4 @@ namespace DescLogicFramework
         }
     }
 
-    /// <summary>
-    /// An event args class to handle processing of all files from a single expedition
-    /// </summary>
-    public class BatchProcessCompleteEventArgs : EventArgs
-    {
-        public string Expedition { get; set; } = "None set!";
-        public BatchProcessCompleteEventArgs(string expedition)
-        {
-            Expedition = expedition;
-        }
-    }
 }

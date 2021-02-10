@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Data;
+using DescLogicFramework.DataAccess;
+using System.Configuration;
 
 namespace DescLogicFramework
 {
@@ -24,6 +27,16 @@ namespace DescLogicFramework
                 Sections.Add(section);
                 return section;
             }
+        }
+
+        public DataTable AllSections { get; set; } = ImportAllSections();
+        public static DataTable ImportAllSections()
+        {
+            var dataTableReader = new CSVReader();
+            dataTableReader.ReadPath = ConfigurationManager.AppSettings["AllSectionsFile"];
+
+            return dataTableReader.Read();
+
         }
     }
 }

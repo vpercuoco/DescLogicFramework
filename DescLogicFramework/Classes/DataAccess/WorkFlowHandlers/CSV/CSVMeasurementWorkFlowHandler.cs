@@ -73,12 +73,9 @@ namespace DescLogicFramework.DataAccess
         /// <summary>
         /// A top method which uses a Lithologic Associator class to correlate to measurements with corresponding Lithologic Descriptions
         /// </summary>
-        /// <param name="measurementCache"></param>
-        /// <param name="lithologyCache"></param>
-        /// <returns></returns>
-        public void UpdateMeasurementCacheWithLithologicDescriptions(ref Dictionary<int, Measurement> measurementCache, ref Dictionary<SectionInfo, Dictionary<string,LithologicDescription>> lithologyCache)
+        public void UpdateMeasurementCacheWithLithologicDescriptions( Dictionary<int, Measurement> measurementCache, Dictionary<SectionInfo, Dictionary<string,LithologicDescription>> lithologyCache)
         {
-           (new LithologicAssociator()).Associate(ref measurementCache, ref lithologyCache);
+           (new LithologicAssociator()).Associate(measurementCache, lithologyCache);
 
             //Set LithologicID, and LithologicSubIDs as new columns in datatable
             if (measurementCache.Count > 1)
