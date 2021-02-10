@@ -19,33 +19,32 @@ namespace DescLogicFramework
         public int ID { get; set; }
 
         [NotMapped]
-        private List<MeasurementColumnValuePair> _backing = new List<MeasurementColumnValuePair>();
+        private List<MeasurementColumnValuePair> _backingData = new List<MeasurementColumnValuePair>();
 
-
-        public List<MeasurementColumnValuePair> Data
+        public List<MeasurementColumnValuePair> MeasurementData
         {
             get
             {
-                if (_backing.Count == 0)
+                if (_backingData.Count == 0)
                 {
                     foreach (DataColumn column in DataRow.Table.Columns)
                     {
                         var pair = new MeasurementColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
                         pair.LithologicID = LithologicID;
                         pair.LithologicSubID = LithologicSubID;
-                        _backing.Add(pair);
+                        _backingData.Add(pair);
                     }
 
                 }
-                return _backing;
+                return _backingData;
             }
         }
 
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
-        public string LithologicID { get; set; }
+        public string LithologicID { get { return LithologicDescription.LithologicID ?? "-1"; } set {; } }
 
-        public int? LithologicSubID { get; set; }
+        public int? LithologicSubID { get{  return LithologicSubinterval.LithologicSubID ?? -1;}  set {; } }
 
         [MaxLength(100)]
         [Column(TypeName = "varchar(100)")]
@@ -55,25 +54,14 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(100)")]
         public string InstrumentSystem { get; set; } = "";
 
-        #endregion
+        public LithologicSubinterval LithologicSubinterval { get; set; }
 
-        public LithologicSubinterval LithologicSubinterval
-        {
-            get { return _lithologicSubInterval; }
-            set
-            {
-                _lithologicSubInterval = value;
-                if (value != null)
-                {
-                   LithologicSubID = value.LithologicSubID;
-                }
-              
-            }
-        }
         /// <summary>
         /// The collection of measurements contained within this subinterval
         /// </summary>
         public virtual ICollection<LithologicSubinterval> LithologicSubintervals { get; set; }
+
+        #endregion
 
         /// <summary>
         /// The datarow of the Measurement within an IODP LORE Report.
@@ -85,21 +73,7 @@ namespace DescLogicFramework
         /// A lithologic description in which this Measurement was taken.
         /// </summary>
         [NotMapped]
-        public LithologicDescription LithologicDescription {
-            get { return _lithologicDescription; } 
-            set { _lithologicDescription = value ;
-                if (value != null)
-                {
-                    LithologicID = value.LithologicID;
-                } 
-            } 
-        }
-
-        [NotMapped]
-        private LithologicDescription _lithologicDescription { get; set; }
-
-        [NotMapped]
-        private LithologicSubinterval _lithologicSubInterval { get; set; }
+        public LithologicDescription LithologicDescription { get; set; } 
 
         public Measurement() { }
 
@@ -115,29 +89,5 @@ namespace DescLogicFramework
             DataRow = measurement.DataRow;
         }
 
-        /// <summary>
-        /// Updates a value to a column in the Measurement's Datarow  
-        /// </summary>
-        private void AddValueToColumn(string valueToAdd, string columnName)
-        {
-            if (!DataRow.Table.Columns.Contains(columnName))
-            {
-                DataRow.Table.Columns.Add(columnName);
-            }
-            DataRow[columnName] = valueToAdd;
-        }
-
-        /// <summary>
-        /// Updates a value in the Measurement's DataRow from a column in its corresponding Lithologic Description.
-        /// </summary>
-        private void AddValueToColumn(LithologicDescription Description, string descriptionColumnName, string columnName)
-        {
-            _ = Description ?? throw new ArgumentNullException(nameof(Description));
-
-            if (Description.DataRow.Table.Columns.Contains(descriptionColumnName))
-            {
-                AddValueToColumn(Description.DataRow[descriptionColumnName].ToString(), columnName);
-            }
-        }
     }
 }
