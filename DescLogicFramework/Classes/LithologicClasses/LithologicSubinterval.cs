@@ -33,6 +33,11 @@ namespace DescLogicFramework
             SectionInfo = Description.SectionInfo;
         }
 
+        /// <summary>
+        /// The collection of measurements contained within this subinterval
+        /// </summary>
+        public virtual ICollection<Measurement> Measurements { get; set; }
+
 
         /// <summary>
         /// Writes the Subinterval's offsets to the console/

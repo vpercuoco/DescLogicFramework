@@ -21,6 +21,7 @@ namespace DescLogicFramework
         [NotMapped]
         private List<MeasurementColumnValuePair> _backing = new List<MeasurementColumnValuePair>();
 
+
         public List<MeasurementColumnValuePair> Data
         {
             get
@@ -69,11 +70,14 @@ namespace DescLogicFramework
               
             }
         }
+        /// <summary>
+        /// The collection of measurements contained within this subinterval
+        /// </summary>
+        public virtual ICollection<LithologicSubinterval> LithologicSubintervals { get; set; }
 
         /// <summary>
         /// The datarow of the Measurement within an IODP LORE Report.
         /// </summary>
-        /// 
         [NotMapped]
         public DataRow DataRow { get; set; }
 
@@ -114,7 +118,7 @@ namespace DescLogicFramework
         /// <summary>
         /// Updates a value to a column in the Measurement's Datarow  
         /// </summary>
-        public void AddValueToColumn(string valueToAdd, string columnName)
+        private void AddValueToColumn(string valueToAdd, string columnName)
         {
             if (!DataRow.Table.Columns.Contains(columnName))
             {
@@ -126,7 +130,7 @@ namespace DescLogicFramework
         /// <summary>
         /// Updates a value in the Measurement's DataRow from a column in its corresponding Lithologic Description.
         /// </summary>
-        public void AddValueToColumn(LithologicDescription Description, string descriptionColumnName, string columnName)
+        private void AddValueToColumn(LithologicDescription Description, string descriptionColumnName, string columnName)
         {
             _ = Description ?? throw new ArgumentNullException(nameof(Description));
 
