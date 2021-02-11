@@ -30,8 +30,7 @@ namespace DescLogicFramework
             {
                 try
                 {
-                    
-                    CurrentFileName = GetFileName(file);
+                    CurrentFileName = Importer.GetFileName(file);
                     CleanupDescriptionFile(file, expedition);
                     
                 }
@@ -49,28 +48,28 @@ namespace DescLogicFramework
         public void CleanupDescriptionFile(string filePath, string expedition)
         {
 
-            var iodpDataTable = ImportDataTableFromFile(filePath);
+            var iodpDataTable = Importer.ImportDataTableFromFile(filePath);
 
-            string exportFilePath =  Directory.CreateDirectory(ConfigurationManager.AppSettings["ExportDirectory"] + expedition + @"\").FullName + GetFileName(filePath);
+            string exportFilePath =  Directory.CreateDirectory(ConfigurationManager.AppSettings["ExportDirectory"] + expedition + @"\").FullName + Importer.GetFileName(filePath);
 
             try
             {
-                CheckFile(iodpDataTable);
+                Importer.CheckFile(iodpDataTable);
                 AddMissingColumns(iodpDataTable.DataTable);
-                AddDataToHierarchyColumns(iodpDataTable, GetFileName(filePath), SectionInfoCollection.SectionsDatatable);
+                AddDataToHierarchyColumns(iodpDataTable, Importer.GetFileName(filePath), SectionInfoCollection.SectionsDatatable);
                 Log.Information(string.Format("{0}: Processed successfully", CurrentFileName));
             }
            catch (Exception ex)
             {
                 Log.Warning(string.Format("{0}: {1}", CurrentFileName, ex.Message));
                
-                exportFilePath = Directory.CreateDirectory(ConfigurationManager.AppSettings["ErrorExportDirectory"] + expedition+ @"\").FullName + GetFileName(filePath);
+                exportFilePath = Directory.CreateDirectory(ConfigurationManager.AppSettings["ErrorExportDirectory"] + expedition+ @"\").FullName + Importer.GetFileName(filePath);
             }
 
 
             try
             {
-                ExportDataTableAsNewFile(exportFilePath, iodpDataTable.DataTable);
+                Importer.ExportDataTableAsNewFile(exportFilePath, iodpDataTable.DataTable);
             }
             catch (Exception)
             {
@@ -80,82 +79,8 @@ namespace DescLogicFramework
 
         }
 
-        /// <summary>
-        /// Imports a datatable from a csv file.
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public IODPDataTable ImportDataTableFromFile(string filePath) 
-        {
-            var dataTableReader = new CSVReader();
-            dataTableReader.ReadPath = filePath;
 
-            using (DataTable dataTable = dataTableReader.Read() )
-            {
-                return new IODPDataTable(dataTable);
-            }
-        }
-
-        public string GetFileName(string filePath)
-        {
-            return filePath.Split(@"\").Last();
-        }
-        public void CheckFile(IODPDataTable IODPDataTable) 
-        {
-
-            int rowNumber = 1;
-            
-            foreach (DataRow row in IODPDataTable.DataTable.Rows)
-            {
-                
-
-                if (!LithologyConvertor.DataRowContainsDescription(row, IODPDataTable))
-                {
-                    throw new Exception(string.Format("Row {0}: Does not contain description", rowNumber));
-                }
-
-                if (!LithologyConvertor.DataRowContainsSampleIDColumn(row, IODPDataTable))
-                {
-                    throw new Exception(string.Format("Row {0}: Does not contain SampleID column", rowNumber));
-                }
-
-                if (!LithologyConvertor.DataRowContainsOffsetColumns(row, IODPDataTable))
-                {
-                    throw new Exception(string.Format("Row {0}: Data row does not contain Offset columns", rowNumber));
-                }
-
-                if (!LithologyConvertor.StartOffsetValuesAreValid(row, IODPDataTable))
-                {
-                    throw new Exception(string.Format("Row {0}: Does not contain correct Start Offset values", rowNumber));
-                }
-
-                if (!LithologyConvertor.EndOffsetValuesAreValid(row, IODPDataTable))
-                {
-                    throw new Exception(string.Format("Row {0}: Does not contain correct End Offset values", rowNumber));
-                }
-                
-                LithologicDescription Description = new LithologicDescription();
-
-
-                try
-                {
-                   Description = new LithologicDescription(row[IODPDataTable.SampleIDColumn].ToString());
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(string.Format("Row {0}: Could not parse SampleID. Error Message: {1}",rowNumber, ex.Message));
-                }
-  
-
-                if (!LithologyConvertor.DescriptionContainsSectionInfo(Description))
-                {
-                    throw new Exception(string.Format("Row {0}: Description does not contain section information", rowNumber));
-                }
-
-                rowNumber++;
-                
-            }    
-        }
+      
 
         /// <summary>
         /// Add necessary hierarchy columns
@@ -211,11 +136,11 @@ namespace DescLogicFramework
 
                 double parsedOffset = 0;
 
-                LithologyConvertor.StartOffsetValuesAreValid(row, IODPDataTable, ref parsedOffset);
+                Importer.StartOffsetValuesAreValid(row, IODPDataTable, ref parsedOffset);
 
                 description.StartOffset = parsedOffset;
 
-                LithologyConvertor.EndOffsetValuesAreValid(row, IODPDataTable, ref parsedOffset);
+                Importer.EndOffsetValuesAreValid(row, IODPDataTable, ref parsedOffset);
 
                 description.EndOffset = parsedOffset;
 
@@ -252,14 +177,6 @@ namespace DescLogicFramework
 
                 rowNumber++;
             }
-        }
-
-       public void ExportDataTableAsNewFile(string exportFilePath, DataTable dataTable) 
-        {
-            var exporter = new CSVReader();
-            exporter.WritePath = exportFilePath;
-
-            exporter.Write(dataTable);
         }
 
     }

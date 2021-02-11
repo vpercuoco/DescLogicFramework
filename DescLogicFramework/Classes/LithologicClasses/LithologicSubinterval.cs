@@ -15,7 +15,6 @@ namespace DescLogicFramework
         [Key]
         public int ID { get; set; }
 
-
         public int? LithologicSubID { get; set; }
 
         public LithologicDescription LithologicDescription { get; set; }

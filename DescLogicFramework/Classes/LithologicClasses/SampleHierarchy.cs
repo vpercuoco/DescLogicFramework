@@ -17,6 +17,10 @@ namespace DescLogicFramework
         public string WorkingTextID { get; set; } = "TextID";
         public string ArchiveTextID { get; set; } = "TextID";
         public string SampleID { get; set; } = "SampleID";
+        public string Offset { get; set; } = "Offset (cm)";
+        public string TopOffset { get; set; } = "Top Offset (cm)";
+        public string BottomOffset { get; set; } = "Bottom Offset (cm)";
+
 
     }
 }

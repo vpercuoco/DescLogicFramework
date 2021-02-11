@@ -78,7 +78,7 @@ namespace DescLogicFramework
         /// Instantiates a new Lithologic Description 
         /// </summary>
         /// <param name="SampleID">A IODP sample ID to be parsed to fill the Lithologic Description's SectionInfo fields</param>
-        public LithologicDescription(string SampleID) : this() { SectionInfo.ParseSampleID(SampleID); }
+        public LithologicDescription(string SampleID) : this() { SectionInfo = new SectionInfo(SampleID); }
 
         /// <summary>
         /// Returns the Lithologic Subinterval for an offset within the bounds of this Lithologic Description.

@@ -38,109 +38,24 @@ namespace DescLogicFramework
         /// <summary>
         /// Creates a SectionInfo object using the the hierarchal information contained in a sampleID.
         /// </summary>
-        public SectionInfo(string sampleID) { ParseSampleID(sampleID); }
-
-        /// <summary>
-        /// Displays a string of SectionInfo properties.
-        /// </summary>
-        public override string ToString()
-        {
-            return string.Format(@"Exp: {0}, Site: {1}, Hole: {2}, Core: {3}, Type: {4}, Section: {5}", Expedition, Site, Hole, Core, Type, Section);
+        public SectionInfo(string sampleID)
+        { 
+            GetPropertiesFromSampleHierarchy(Importer.ParseSampleID(sampleID)); 
         }
 
-        /// <summary>
-        /// Separates a sample ID into its components, then assigns to properties.
-        /// </summary>
-        /// <param name="sampleID">DescLogic Sample ID</param>
-        public void ParseSampleID(string sampleID)
+        public void GetPropertiesFromSampleHierarchy(SampleHierarchy hierarchy)
         {
-            _ = sampleID ?? throw new ArgumentNullException(nameof(sampleID));
+            SampleID = hierarchy.SampleID;
+            Expedition = hierarchy.Expedition;
+            Site = hierarchy.Site;
+            Hole = hierarchy.Hole;
+            Core = hierarchy.Core;
+            Type = hierarchy.Type;
+            Section = hierarchy.Section;
+            Half = hierarchy.Half;
 
-            string[] sampleIDComponents = sampleID.Split("-");
-            try
-            {
-                switch (sampleIDComponents.Length)
-                {
-                    case 0:
-                        SampleID = sampleID;
-                        Expedition = null;
-                        Site = null;
-                        Hole = null;
-                        Core = null;
-                        Type = null;
-                        Section = null;
-                        Half = null;
-                        break;
-                    case 1:
-                        SampleID = sampleID;
-                        Expedition = sampleIDComponents[0]; //I may want to change in the iteration because I keep getting "No Sample" in the Exedition Column
-                        Site = null;
-                        Hole = null;
-                        Core = null;
-                        Type = null;
-                        Section = null;
-                        Half = null;
-                        break;
-                    case 2:
-                        SampleID = sampleID;
-                        Expedition = sampleIDComponents[0];
-                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
-                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
-                        Core = null;
-                        Type = null;
-                        Section = null;
-                        Half = null;
-                        break;
-                    case 3:
-                        SampleID = sampleID;
-                        Expedition = sampleIDComponents[0];
-                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
-                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
-                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
-                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
-                        Section = null;
-                        Half = null;
-                        break;
-                    case 4:
-                        SampleID = sampleID;
-                        Expedition = sampleIDComponents[0];
-                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
-                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
-                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
-                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
-                        Section = sampleIDComponents[3];
-                        Half = null;
-                        break;
-                    case 5:
-                        SampleID = sampleID;
-                        Expedition = sampleIDComponents[0];
-                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
-                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
-                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
-                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
-                        Section = sampleIDComponents[3];
-                        Half = CleanUpSectionHalf(sampleIDComponents[4].Split(" ")[0]);
-                        break;
-                    default:
-                        SampleID = sampleID;
-                        Expedition = sampleIDComponents[0];
-                        Site = sampleIDComponents[1].Substring(0, sampleIDComponents[1].Length - 1);
-                        Hole = sampleIDComponents[1].Substring(sampleIDComponents[1].Length - 1, 1);
-                        Core = sampleIDComponents[2].Substring(0, sampleIDComponents[2].Length - 1);
-                        Type = sampleIDComponents[2].Substring(sampleIDComponents[2].Length - 1, 1);
-                        Section = sampleIDComponents[3];
-                        Half = CleanUpSectionHalf(sampleIDComponents[4].Split(" ")[0]);
-                        break;
-                }
-            }
-            catch (Exception)
-            {
-
-                throw new Exception("Error Parsing SampleID");
-            }
-            
         }
-
+       
         /// <summary>
         /// Determines if two SectionInfo objects are identical
         /// </summary>
@@ -161,17 +76,13 @@ namespace DescLogicFramework
             }
         }
 
-        private string CleanUpSectionHalf(string sectionHalf)
+        /// <summary>
+        /// Displays a string of SectionInfo properties.
+        /// </summary>
+        public override string ToString()
         {
-
-            if (sectionHalf.Contains("PAL"))
-            {
-                return "PAL";
-            }
-            else
-            {
-                return sectionHalf;
-            }
+            return string.Format(@"Exp: {0}, Site: {1}, Hole: {2}, Core: {3}, Type: {4}, Section: {5}", Expedition, Site, Hole, Core, Type, Section);
         }
+
     }
 }

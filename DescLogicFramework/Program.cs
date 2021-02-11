@@ -93,14 +93,14 @@ namespace DescLogicFramework
 
         
 
-        private static SectionInfo GetSectionInfoFromDatabase(DescDBContext dbContext, LithologicDescription description)
+        private static SectionInfo GetSectionInfoFromDatabase(DescDBContext dbContext, Interval interval)
         {
-            return dbContext.Sections.Where(record => record.Expedition == description.SectionInfo.Expedition
-                                              && record.Site == description.SectionInfo.Site
-                                              && record.Hole == description.SectionInfo.Hole
-                                              && record.Core == description.SectionInfo.Core
-                                              && record.Type == description.SectionInfo.Type
-                                              && record.Section == description.SectionInfo.Section).FirstOrDefault();
+            return dbContext.Sections.Where(record => record.Expedition == interval.SectionInfo.Expedition
+                                              && record.Site == interval.SectionInfo.Site
+                                              && record.Hole == interval.SectionInfo.Hole
+                                              && record.Core == interval.SectionInfo.Core
+                                              && record.Type == interval.SectionInfo.Type
+                                              && record.Section == interval.SectionInfo.Section).FirstOrDefault();
         }
 
         private static void AddAllSectionsToDatabase()

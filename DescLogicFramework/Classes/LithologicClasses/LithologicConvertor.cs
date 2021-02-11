@@ -38,32 +38,32 @@ namespace DescLogicFramework
             {
                 dataTableRow["LithologicID_VP"] = "-1";
 
-                if (!DataRowContainsDescription(dataTableRow, dataTable))
+                if (!Importer.DataRowContainsDescription(dataTableRow, dataTable))
                     return LithologyCache;
 
-                if (!DataRowContainsSampleIDColumn(dataTableRow, dataTable))
+                if (!Importer.DataRowContainsSampleIDColumn(dataTableRow, dataTable))
                     return LithologyCache;
 
                 LithologicDescription description = new LithologicDescription(dataTableRow[dataTable.SampleIDColumn].ToString());
 
                 description.SectionInfo = SectionCollection.GetExistingElseAddAndGetCurrentSection(description.SectionInfo);
 
-                if (!DescriptionContainsSectionInfo(description))
+                if (!Importer.DescriptionContainsSectionInfo(description))
                     return LithologyCache;
 
                 description.DataRow = dataTableRow;
 
                 double parsedOffset = 0;
 
-                if (!DataRowContainsOffsetColumns(dataTableRow, dataTable))
+                if (!Importer.DataRowContainsOffsetColumns(dataTableRow, dataTable))
                     return LithologyCache;
 
-                if (!StartOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
+                if (!Importer.StartOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
                     return LithologyCache;
 
                 description.StartOffset = parsedOffset;
 
-                if (!EndOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
+                if (!Importer.EndOffsetValuesAreValid(dataTableRow, dataTable, ref parsedOffset))
                     return LithologyCache;
 
                 description.EndOffset = parsedOffset;
@@ -91,57 +91,6 @@ namespace DescLogicFramework
 
         }
 
-        public static bool StartOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
-        {
-
-            return double.TryParse(dataTableRow[dataTable.TopOffsetColumn].ToString(), out parsedOffset);
-        
-        }
-
-        public static bool StartOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable)
-        {
- 
-            return double.TryParse(dataTableRow[dataTable.TopOffsetColumn].ToString(), out double parsedOffset);
-        }
-
-        public static bool EndOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
-        {
-
-            return double.TryParse(dataTableRow[dataTable.BottomOffsetColumn].ToString(), out parsedOffset);
-
-        }
-        public static bool EndOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable)
-        {
-        
-            return double.TryParse(dataTableRow[dataTable.BottomOffsetColumn].ToString(), out double parsedOffset);
-
-        }
-
-        public  static bool DataRowContainsOffsetColumns(DataRow dataTableRow, IODPDataTable dataTable)
-        {
-            return dataTableRow.Table.Columns.Contains(dataTable.TopOffsetColumn) && dataTableRow.Table.Columns.Contains(dataTable.BottomOffsetColumn);
-
-        }
-
-        public static bool DescriptionContainsSectionInfo(LithologicDescription description)
-        {
-            return description.SectionInfo.Section != null ? true : false;
-
-        }
-
-        public static bool DataRowContainsDescription(DataRow dataTableRow, IODPDataTable dataTable)
-        {
-   
-            CinnamonList noDataEntriesList = new CinnamonList("NoSampleEntries");
-
-            return !noDataEntriesList.FindInList(dataTableRow[dataTable.SampleIDColumn].ToString().ToLower()) ? true : false;
- 
-        }
-
-        public static bool DataRowContainsSampleIDColumn(DataRow dataTableRow, IODPDataTable dataTable)
-        {
-
-            return dataTableRow.Table.Columns.Contains(dataTable.SampleIDColumn);
-        }
+  
     }
 }

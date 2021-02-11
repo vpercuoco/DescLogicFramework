@@ -75,6 +75,29 @@ namespace DescLogicFramework
 
         }
 
+        public IODPDataTable(DataTable dataTable, SampleHierarchy hierarchy)
+        {
+            DataTable = dataTable;
+
+            ExpeditionColumn = hierarchy.Expedition;
+
+            SiteColumn = hierarchy.Site;
+
+            HoleColumn = hierarchy.Hole;
+
+            CoreColumn = hierarchy.Core;
+
+            TypeColumn = hierarchy.Type;
+
+            SectionColumn = hierarchy.Section;
+
+            TopOffsetColumn = hierarchy.TopOffset;
+
+            BottomOffsetColumn = hierarchy.BottomOffset;
+
+            SampleIDColumn = hierarchy.SampleID;
+        }
+
         /// <summary>
         /// Returns a list of the column names of a Datatable
         /// </summary>
