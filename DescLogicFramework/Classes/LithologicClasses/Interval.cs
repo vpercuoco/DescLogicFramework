@@ -25,14 +25,14 @@ namespace DescLogicFramework
         /// <summary>
         /// The top offset of the interval within the section.
         /// </summary>
-        [NotMapped]
+      
         public double StartOffset { get { return _startOffset; } set{ _startOffset = value; _startOffsetSet = true; } } 
     
 
         /// <summary>
         /// The bottom offset of the interval within the section.
         /// </summary>
-        [NotMapped]
+        
         public double EndOffset{ get {return _endOffset; } set{ _endOffset = value; _endOffsetSet = true;} }
 
         /// <summary>

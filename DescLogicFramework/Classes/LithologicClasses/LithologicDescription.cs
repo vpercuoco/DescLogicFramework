@@ -17,6 +17,8 @@ namespace DescLogicFramework
 
         #region EFCoreProperties
         [Key]
+        public int ID { get; set; }
+
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
         public string LithologicID { get; set; } = "-1";
@@ -40,7 +42,7 @@ namespace DescLogicFramework
         [NotMapped]
         private List<DescriptionColumnValuePair> _backing = new List<DescriptionColumnValuePair>();
 
-        public List<DescriptionColumnValuePair> Data
+        public List<DescriptionColumnValuePair> DescriptionColumnValues
         {
             get
             {

@@ -23,10 +23,15 @@ namespace DescLogicFramework
         public string Section { get; set; }
         public string SampleID { get; set; }
         public string Half { get; set; }
-        public string Parent { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int SectionTextID { get; set; }
+        public string ParentTextID { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public string ArchiveTextID { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public string WorkingTextID { get; set; }
 
         public SectionInfo() { }
 

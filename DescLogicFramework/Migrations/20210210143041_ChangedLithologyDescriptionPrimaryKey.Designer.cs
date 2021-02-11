@@ -4,14 +4,16 @@ using DescLogicFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DescLogicFramework.Migrations
 {
     [DbContext(typeof(DescDBContext))]
-    partial class DescDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210210143041_ChangedLithologyDescriptionPrimaryKey")]
+    partial class ChangedLithologyDescriptionPrimaryKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,9 +179,6 @@ namespace DescLogicFramework.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ArchiveTextID")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Core")
                         .HasColumnType("nvarchar(max)");
 
@@ -192,7 +191,7 @@ namespace DescLogicFramework.Migrations
                     b.Property<string>("Hole")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ParentTextID")
+                    b.Property<string>("Parent")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SampleID")
@@ -201,13 +200,13 @@ namespace DescLogicFramework.Migrations
                     b.Property<string>("Section")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SectionTextID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Site")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkingTextID")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");

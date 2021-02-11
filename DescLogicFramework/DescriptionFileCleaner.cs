@@ -57,7 +57,7 @@ namespace DescLogicFramework
             {
                 CheckFile(iodpDataTable);
                 AddMissingColumns(iodpDataTable.DataTable);
-                AddDataToHierarchyColumns(iodpDataTable, GetFileName(filePath), SectionInfoCollection.AllSections);
+                AddDataToHierarchyColumns(iodpDataTable, GetFileName(filePath), SectionInfoCollection.SectionsDatatable);
                 Log.Information(string.Format("{0}: Processed successfully", CurrentFileName));
             }
            catch (Exception ex)

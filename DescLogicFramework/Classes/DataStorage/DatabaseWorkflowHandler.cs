@@ -155,7 +155,7 @@ namespace DescLogicFramework
                 }
 
                 //DescriptionColumnValuePairs are tracked and accessed via the measurement's LithologicSubinterval property
-                foreach (DescriptionColumnValuePair entry in measurement.LithologicDescription.Data)
+                foreach (DescriptionColumnValuePair entry in measurement.LithologicDescription.DescriptionColumnValues)
                 {
                     context.Entry(entry).State = Microsoft.EntityFrameworkCore.EntityState.Unchanged;
                 }
@@ -223,7 +223,7 @@ namespace DescLogicFramework
             // Cannot insert explicit value for identity column in table 'Sections' when IDENTITY_INSERT is set to OFF.
             foreach (var description in descriptions)
             {
-               var acceptedDescriptionColumnValues =  description.Data.Where(x => !acceptableColumns.Contains(x.ColumnName)).ToList();
+               var acceptedDescriptionColumnValues =  description.DescriptionColumnValues.Where(x => !acceptableColumns.Contains(x.ColumnName)).ToList();
                 //I want to ensure only certain DescriptionColumnValuePairsAre loaded
                 //foreach (var ColumnValuePair in acceptedDescriptionColumnValues)
                // {

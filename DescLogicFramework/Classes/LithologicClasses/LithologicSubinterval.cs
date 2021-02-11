@@ -15,17 +15,15 @@ namespace DescLogicFramework
         [Key]
         public int ID { get; set; }
 
+
         public int? LithologicSubID { get; set; }
 
         public LithologicDescription LithologicDescription { get; set; }
 
-        public ICollection<Measurement> Measurements { get; set; }
+        public ICollection<Measurement> Measurements { get; set; } = new HashSet<Measurement>();      
 
 
-        public LithologicSubinterval() 
-        {
-            Measurements = new HashSet<Measurement>();        
-        }
+        public LithologicSubinterval() { }
 
         /// <summary>
         /// Creates a new Lithologic Subinterval
