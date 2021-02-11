@@ -41,7 +41,7 @@ namespace DescLogicFramework
         /// </summary>
         public override string ToString()
         {    
-            return string.Format(CultureInfo.CurrentCulture, @"Subinterval Start:{0}, End:{1}",  StartOffset.ToString(CultureInfo.CurrentCulture), EndOffset.ToString(CultureInfo.CurrentCulture));
+            return string.Format(CultureInfo.CurrentCulture, @"Subinterval Start:{0}, End:{1}",  StartOffset?.ToString(CultureInfo.CurrentCulture), EndOffset?.ToString(CultureInfo.CurrentCulture));
         }
 
     }

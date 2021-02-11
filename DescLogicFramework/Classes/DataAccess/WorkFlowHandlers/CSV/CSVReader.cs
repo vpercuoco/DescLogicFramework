@@ -70,24 +70,24 @@ namespace DescLogicFramework.DataAccess
         /// <summary>
         /// Pivots a DataTable object into Column/Attribute pairs.
         /// </summary>
-        /// <param name="dt"></param>
+        /// <param name="dataTable"></param>
         /// <returns></returns>
-        public DataTable PivotDataTable(DataTable dt)
+        public static DataTable PivotDataTable(DataTable dataTable)
         {
-            DataTable pvt = new DataTable();
-            pvt.Columns.Add("Column", typeof(string));
-            pvt.Columns.Add("Attribute", typeof(string));
-            foreach (DataRow dr in dt.Rows)
+            DataTable pivotTable = new DataTable();
+            pivotTable.Columns.Add("Column", typeof(string));
+            pivotTable.Columns.Add("Attribute", typeof(string));
+            foreach (DataRow dataRow in dataTable.Rows)
             {  
-                for (int i = 0; i < dt.Columns.Count; i++)
+                for (int columnNumber = 0; columnNumber < dataTable.Columns.Count; columnNumber++)
                 {
-                    DataRow nr = pvt.NewRow();
-                    nr["Column"] = dt.Columns[i];
-                    nr["Attribute"] = dr[i];
-                    pvt.Rows.Add(nr);
+                    DataRow newRow = pivotTable.NewRow();
+                    newRow["Column"] = dataTable.Columns[columnNumber];
+                    newRow["Attribute"] = dataRow[columnNumber];
+                    pivotTable.Rows.Add(newRow);
                 }
             }
-            return pvt;
+            return pivotTable;
         }
 
     }

@@ -11,10 +11,10 @@ namespace DescLogicFramework
     public class Interval
     {
         [NotMapped]
-        private double _startOffset = -1; 
+        private double? _startOffset = -1; 
 
         [NotMapped]
-        private double _endOffset = -1; 
+        private double? _endOffset = -1; 
 
         [NotMapped]
         private bool _startOffsetSet = false;
@@ -26,14 +26,14 @@ namespace DescLogicFramework
         /// The top offset of the interval within the section.
         /// </summary>
       
-        public double StartOffset { get { return _startOffset; } set{ _startOffset = value; _startOffsetSet = true; } } 
+        public double? StartOffset { get { return _startOffset; } set{ _startOffset = value; _startOffsetSet = true; } } 
     
 
         /// <summary>
         /// The bottom offset of the interval within the section.
         /// </summary>
         
-        public double EndOffset{ get {return _endOffset; } set{ _endOffset = value; _endOffsetSet = true;} }
+        public double? EndOffset{ get {return _endOffset; } set{ _endOffset = value; _endOffsetSet = true;} }
 
         /// <summary>
         /// The core section identifying information.

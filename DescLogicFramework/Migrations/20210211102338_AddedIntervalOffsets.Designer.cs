@@ -4,14 +4,16 @@ using DescLogicFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DescLogicFramework.Migrations
 {
     [DbContext(typeof(DescDBContext))]
-    partial class DescDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210211102338_AddedIntervalOffsets")]
+    partial class AddedIntervalOffsets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +69,7 @@ namespace DescLogicFramework.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<double?>("EndOffset")
+                    b.Property<double>("EndOffset")
                         .HasColumnType("float");
 
                     b.Property<string>("LithologicID")
@@ -77,7 +79,7 @@ namespace DescLogicFramework.Migrations
                     b.Property<int?>("SectionInfoID")
                         .HasColumnType("int");
 
-                    b.Property<double?>("StartOffset")
+                    b.Property<double>("StartOffset")
                         .HasColumnType("float");
 
                     b.HasKey("ID");
@@ -94,7 +96,7 @@ namespace DescLogicFramework.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<double?>("EndOffset")
+                    b.Property<double>("EndOffset")
                         .HasColumnType("float");
 
                     b.Property<int?>("LithologicDescriptionID")
@@ -106,7 +108,7 @@ namespace DescLogicFramework.Migrations
                     b.Property<int?>("SectionInfoID")
                         .HasColumnType("int");
 
-                    b.Property<double?>("StartOffset")
+                    b.Property<double>("StartOffset")
                         .HasColumnType("float");
 
                     b.HasKey("ID");
@@ -125,7 +127,7 @@ namespace DescLogicFramework.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<double?>("EndOffset")
+                    b.Property<double>("EndOffset")
                         .HasColumnType("float");
 
                     b.Property<string>("InstrumentReport")
@@ -146,7 +148,7 @@ namespace DescLogicFramework.Migrations
                     b.Property<int?>("SectionInfoID")
                         .HasColumnType("int");
 
-                    b.Property<double?>("StartOffset")
+                    b.Property<double>("StartOffset")
                         .HasColumnType("float");
 
                     b.HasKey("ID");

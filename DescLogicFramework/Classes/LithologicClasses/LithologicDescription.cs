@@ -93,7 +93,7 @@ namespace DescLogicFramework
         /// </summary>
         public void GenerateSubintervals()
         {
-            int subintervalCount = (int)Math.Ceiling((EndOffset- StartOffset) / _resolution);
+            int subintervalCount = (int)Math.Ceiling((decimal)((EndOffset - StartOffset) / _resolution));
 
             for (int currentSubintervalID = 1; currentSubintervalID <= subintervalCount; currentSubintervalID++)
             {
