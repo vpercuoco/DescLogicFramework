@@ -75,7 +75,7 @@ namespace DescLogicFramework
 
         }
 
-        public IODPDataTable(DataTable dataTable, SampleHierarchy hierarchy)
+        public IODPDataTable(DataTable dataTable, IntervalHierarchyNames hierarchy)
         {
             DataTable = dataTable;
 

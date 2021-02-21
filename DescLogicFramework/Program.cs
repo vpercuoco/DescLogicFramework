@@ -13,8 +13,9 @@ using System.Globalization;
 using Serilog;
 using Serilog.Sinks;
 using Serilog.Sinks.File;
-
-
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace DescLogicFramework
 {
@@ -28,9 +29,61 @@ namespace DescLogicFramework
                 .WriteTo.File(ConfigurationManager.AppSettings["LogFileLocation"])
                 .CreateLogger();
 
-            CleanDescriptionFiles();
+
+            //            Examples.GetMeasurementsFromFileThenGetCertainDescriptionColumns();
+
+
+            var x = Task.Run(async () => await SubintervalCreator.GetLithologicSubIntervalsForMeasurements());
+            x.Wait();
+
+           // DatabaseWorkflowHandler.AttemptAtSQLRaw();
+
+
+           // var list = new CinnamonList("ExpeditionList").Parameters;
+           // List<string> expeditions = new List<string>();
+           // foreach (var item in list)
+           // {
+           //    expeditions.Add( item.Remove(0, 1));
+           // }
+           // expeditions.Reverse();
+
+           //// expeditions.Remove("330");
+           // //expeditions.Remove("323");
+           // //expeditions.Remove("321");
+           // //  AddAllDescriptionsToDatabase();
+           // foreach (var item in expeditions)
+           // {
+           //     Console.WriteLine(string.Format("Creating Subintervals for {0}",item.ToString()));
+
+           //     var xx = Task.Run(async () => await Workflow.EnsureAllLithologicDescriptionsHaveSubintervals(item.ToString()));
+           //     xx.Wait();
+           // }
+
 
             Log.CloseAndFlush();
+
+
+           // // var myTasks = new List<Task<bool>>();
+
+           // // var x = Task.Run(async () => await SubintervalCreator.EnsureAllLithologicDescriptionsHaveSubintervals());
+           // //  var y = Task.Run(async () => await SubintervalCreator.EnsureAllLithologicDescriptionsHaveSubintervals());
+           // // var z = Task.Run(async () => await SubintervalCreator.EnsureAllLithologicDescriptionsHaveSubintervals());
+
+           // // myTasks.Add(x);
+           // // myTasks.Add(y);
+           // // myTasks.Add(z);
+
+           // // var t =  Task.Run(async () => await Task.WhenAll(myTasks));
+           // // t.Wait();
+           // // var cc = t.Result;
+
+           // var x = Task.Run(async () => await SubintervalCreator.GetDescriptionsForMeasurment("MAD", new List<string>() {"Expedition_VP" }).ConfigureAwait(true));
+
+           //// var x = Task.Run(async () => await SubintervalCreator.GetLithologicSubIntervalsForMeasurements().ConfigureAwait(true));
+           // x.Wait();
+            
+            
+   
 
 
 
@@ -51,75 +104,8 @@ namespace DescLogicFramework
 
         }
 
-        private static void CleanDescriptionFiles()
-        {
-            var list = new CinnamonList("ExpeditionList").Parameters;
-            list.Reverse();
+       
 
-            foreach (var expedition in list)
-            {
-                DescriptionFileCleaner cleaner = new DescriptionFileCleaner(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\AGU2019\" + expedition + @"\output\extracted_csv", expedition);
-            }
-        }
-
-        //TODO: Continue working on adding descriptions to DB
-        private static void AddDescriptionsToDatabase()
-        {
-            ICollection<LithologicDescription> descriptions = new HashSet<LithologicDescription>();
-
-
-            //Import Descriptions from my files
-            //Disregard my headers
-            //Send to database
-
-
-
-
-
-            using (DescDBContext dbContext = new DescDBContext())
-            {
-                foreach (var description in descriptions)
-                {
-                    SectionInfo section = GetSectionInfoFromDatabase(dbContext, description);
-
-                    description.SectionInfo = section ?? description.SectionInfo;
-
-                    dbContext.Add(description);
-                }
-
-                //  dbContext.SaveChanges();
-            }
-        }
-
-        
-
-        private static SectionInfo GetSectionInfoFromDatabase(DescDBContext dbContext, Interval interval)
-        {
-            return dbContext.Sections.Where(record => record.Expedition == interval.SectionInfo.Expedition
-                                              && record.Site == interval.SectionInfo.Site
-                                              && record.Hole == interval.SectionInfo.Hole
-                                              && record.Core == interval.SectionInfo.Core
-                                              && record.Type == interval.SectionInfo.Type
-                                              && record.Section == interval.SectionInfo.Section).FirstOrDefault();
-        }
-
-        private static void AddAllSectionsToDatabase()
-        {
-
-            SectionInfoCollection sectionCollection = new SectionInfoCollection();
-
-            SampleHierarchy columnNames = new SampleHierarchy { Expedition = "Exp", Site = "Site", Hole = "Hole", Core = "Core", Type = "Type", Section = "Sect", ParentTextID = "Text ID of section", ArchiveTextID = "Text ID of archive half", WorkingTextID = "Text ID of working half" };
-
-            sectionCollection.ParseSectionInfoFromDataTable(SectionInfoCollection.ImportAllSections(), columnNames);
-
-
-            using (DescDBContext dbContext = new DescDBContext())
-            {
-
-                dbContext.AddRange(sectionCollection.Sections);
-                dbContext.SaveChanges();
-            }
-        }
     }
 
     public static class ProgramSettings
@@ -130,4 +116,6 @@ namespace DescLogicFramework
         public static bool ProcessMeaurements { get; set; } = false;
     }
 
+
+    
 }

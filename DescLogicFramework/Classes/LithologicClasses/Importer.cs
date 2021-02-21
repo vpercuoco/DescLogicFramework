@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DescLogicFramework
 {
@@ -17,6 +19,7 @@ namespace DescLogicFramework
         /// <returns></returns>
         public static IODPDataTable ImportDataTableFromFile(string filePath)
         {
+
             var dataTableReader = new CSVReader();
             dataTableReader.ReadPath = filePath;
 
@@ -26,20 +29,28 @@ namespace DescLogicFramework
             }
         }
 
-        public static IODPDataTable ImportDataTableFromFile(string filePath, SampleHierarchy hierarchy)
+        public static IODPDataTable ImportDataTableFromFile(string filePath, IntervalHierarchyNames hierarchy)
         {
+      
             var dataTableReader = new CSVReader();
             dataTableReader.ReadPath = filePath;
+
 
             using (DataTable dataTable = dataTableReader.Read())
             {
                 return new IODPDataTable(dataTable, hierarchy);
             }
+
         }
 
         public static string GetFileName(string filePath)
         {
             return filePath.Split(@"\").Last();
+        }
+
+        public static string GetFileNameWithoutExtension(string filePath)
+        {
+            return GetFileName(filePath).Split(".").First();
         }
 
         public static void ExportDataTableAsNewFile(string exportFilePath, DataTable dataTable)
@@ -50,11 +61,47 @@ namespace DescLogicFramework
             exporter.Write(dataTable);
         }
 
-        public static SampleHierarchy ParseSampleID(string sampleID)
+        public static IntervalHierarchyValues GetHierarchyValuesFromDataRow(DataRow dataRow, IntervalHierarchyNames columnNames)
+        {
+            IntervalHierarchyValues result = new IntervalHierarchyValues();
+
+            try
+            {
+                result.SampleID = DataRowContainsColumn(columnNames.SampleID, dataRow) ? dataRow[columnNames.SampleID].ToString() : result.SampleID;
+                result.Expedition = DataRowContainsColumn(columnNames.Expedition, dataRow) ? dataRow[columnNames.Expedition].ToString() : result.Expedition;
+                result.Site = DataRowContainsColumn(columnNames.Site, dataRow) ? dataRow[columnNames.Site].ToString() : result.Site;
+                result.Hole = DataRowContainsColumn(columnNames.Hole, dataRow) ? dataRow[columnNames.Hole].ToString() : result.Hole;
+                result.Core = DataRowContainsColumn(columnNames.Core, dataRow) ? dataRow[columnNames.Core].ToString() : result.Core;
+                result.Type = DataRowContainsColumn(columnNames.Type, dataRow) ? dataRow[columnNames.Type].ToString() : result.Type;
+                result.Section = DataRowContainsColumn(columnNames.Section, dataRow) ? dataRow[columnNames.Section].ToString() : result.Section;
+                result.Half = DataRowContainsColumn(columnNames.Half, dataRow) ? dataRow[columnNames.Half].ToString() : result.Half;
+                result.Offset = DataRowContainsColumn(columnNames.Offset, dataRow) ? dataRow[columnNames.Offset].ToString() : result.Offset;
+                result.TopOffset = DataRowContainsColumn(columnNames.TopOffset, dataRow) ? dataRow[columnNames.TopOffset].ToString() : result.TopOffset;
+                result.BottomOffset = DataRowContainsColumn(columnNames.BottomOffset, dataRow) ? dataRow[columnNames.BottomOffset].ToString() : result.BottomOffset;
+                result.ArchiveTextID = DataRowContainsColumn(columnNames.ArchiveTextID, dataRow) ? dataRow[columnNames.ArchiveTextID].ToString() : result.ArchiveTextID;
+                result.WorkingTextID = DataRowContainsColumn(columnNames.WorkingTextID, dataRow) ? dataRow[columnNames.WorkingTextID].ToString() : result.WorkingTextID;
+                result.ParentTextID = DataRowContainsColumn(columnNames.ParentTextID, dataRow) ? dataRow[columnNames.ParentTextID].ToString() : result.ParentTextID;
+                result.TextID = DataRowContainsColumn(columnNames.TextID, dataRow) ? dataRow[columnNames.TextID].ToString() : result.TextID;
+                result.TestNumber = DataRowContainsColumn(columnNames.TestNumber, dataRow) ? dataRow[columnNames.TestNumber].ToString() : result.TestNumber;
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw new Exception("Error trying to get hierarchy values from data row");
+            }
+        }
+
+        public static bool DataRowContainsColumn(string columnName, DataRow dataRow)
+        {
+           return dataRow.Table.Columns.Contains(columnName);
+        }
+
+        public static IntervalHierarchyValues ParseSampleID(string sampleID)
         {
             _ = sampleID ?? throw new ArgumentNullException(nameof(sampleID));
 
-            SampleHierarchy hierarchy = new SampleHierarchy();
+            IntervalHierarchyValues hierarchy = new IntervalHierarchyValues();
 
 
             string[] sampleIDComponents = sampleID.Split("-");
@@ -143,6 +190,7 @@ namespace DescLogicFramework
             }
 
         }
+
         private static string CleanUpSectionHalf(string sectionHalf)
         {
 
@@ -156,6 +204,7 @@ namespace DescLogicFramework
             }
         }
 
+        #region FileChecks
 
         public static void CheckFile(IODPDataTable IODPDataTable)
         {
@@ -214,7 +263,6 @@ namespace DescLogicFramework
             }
         }
 
-
         public static bool StartOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable, ref double parsedOffset)
         {
 
@@ -234,6 +282,7 @@ namespace DescLogicFramework
             return double.TryParse(dataTableRow[dataTable.BottomOffsetColumn].ToString(), out parsedOffset);
 
         }
+
         public static bool EndOffsetValuesAreValid(DataRow dataTableRow, IODPDataTable dataTable)
         {
 
@@ -266,6 +315,31 @@ namespace DescLogicFramework
         {
 
             return dataTableRow.Table.Columns.Contains(dataTable.SampleIDColumn);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Takes in a Datatable and prints all the headers, rows to the console
+        /// </summary>
+        /// <param name="dataTable"></param>
+        public static void PrintDataTableToConsole(DataTable dataTable)
+        {
+            string output = " ";
+            foreach (DataColumn dataColumn in dataTable.Columns)
+            {
+                output = output + " " + dataColumn.ColumnName;
+            }
+
+            foreach (DataRow dataRow in dataTable.Rows)
+            {
+                output = " ";
+                foreach (var item in dataRow.ItemArray)
+                {
+                    output = output + " " + item.ToString();
+                }
+                Console.WriteLine(output);
+            }
         }
     }
 }

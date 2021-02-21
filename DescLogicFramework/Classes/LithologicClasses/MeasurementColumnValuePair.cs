@@ -12,12 +12,12 @@ namespace DescLogicFramework
         [Key]
         public int ID { get; set; }
 
-        [MaxLength(500)]
-        [Column(TypeName = "varchar(500)")]
+        [MaxLength(5000)]
+        [Column(TypeName = "varchar(5000)")]
         public string Value { get; set; }
 
-        [MaxLength(50)]
-        [Column(TypeName = "varchar(50)")]
+        [MaxLength(500)]
+        [Column(TypeName = "varchar(500)")]
         public string ColumnName { get; set; }
 
         public int? LithologicSubID { get; set; }

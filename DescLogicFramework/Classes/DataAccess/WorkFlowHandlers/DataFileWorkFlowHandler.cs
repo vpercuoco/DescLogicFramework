@@ -17,7 +17,7 @@ namespace DescLogicFramework.DataAccess
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        protected IODPDataTable ImportIODPDataTable(IDataTableHandler dtReader)
+        protected IODPDataTable ImportIODPDataTable(CSVReader dtReader)
         {
 
             using (DataTable dt = dtReader.Read())

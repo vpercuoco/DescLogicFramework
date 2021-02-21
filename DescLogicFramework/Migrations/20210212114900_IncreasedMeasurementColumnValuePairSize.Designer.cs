@@ -4,14 +4,16 @@ using DescLogicFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DescLogicFramework.Migrations
 {
     [DbContext(typeof(DescDBContext))]
-    partial class DescDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210212114900_IncreasedMeasurementColumnValuePairSize")]
+    partial class IncreasedMeasurementColumnValuePairSize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,14 +150,6 @@ namespace DescLogicFramework.Migrations
 
                     b.Property<double?>("StartOffset")
                         .HasColumnType("float");
-
-                    b.Property<string>("TestNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("TextID")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
 
                     b.HasKey("ID");
 

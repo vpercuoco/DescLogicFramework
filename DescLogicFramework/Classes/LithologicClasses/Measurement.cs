@@ -18,13 +18,19 @@ namespace DescLogicFramework
         [Key]
         public int ID { get; set; }
 
-        [NotMapped]
-        private List<MeasurementColumnValuePair> _backingData = new List<MeasurementColumnValuePair>();
 
-        public List<MeasurementColumnValuePair> MeasurementData
+        //[NotMapped]
+        //private List<MeasurementColumnValuePair> _backingData = new List<MeasurementColumnValuePair>();
+
+
+        //TODO: Get rid of backing data
+        public List<MeasurementColumnValuePair> MeasurementData 
         {
-            get
+            /*get
             {
+
+
+                /*
                 if (_backingData.Count == 0)
                 {
                     foreach (DataColumn column in DataRow.Table.Columns)
@@ -37,14 +43,18 @@ namespace DescLogicFramework
 
                 }
                 return _backingData;
-            }
-        }
+               
+                
+            }*/
+            get;
+            set;
+        } = new List<MeasurementColumnValuePair>();
 
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
-        public string LithologicID { get { return LithologicDescription.LithologicID ?? "-1"; } set {; } }
+        public string LithologicID { get { return LithologicDescription?.LithologicID ?? "-1"; } set {; } }
 
-        public int? LithologicSubID { get{  return LithologicSubinterval.LithologicSubID ?? -1;}  set {; } }
+        public int? LithologicSubID { get{  return LithologicSubinterval?.LithologicSubID ?? -1;}  set {; } }
 
         [MaxLength(100)]
         [Column(TypeName = "varchar(100)")]
@@ -54,21 +64,52 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(100)")]
         public string InstrumentSystem { get; set; } = "";
 
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(15)")]
+        public string TextID { get; set; } = "";
+
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(15)")]
+        public string TestNumber { get; set; } = "";
+
         [NotMapped]
         public LithologicSubinterval LithologicSubinterval { get; set; }
 
         /// <summary>
         /// The collection of measurements contained within this subinterval
         /// </summary>
-        public ICollection<LithologicSubinterval> LithologicSubintervals { get; set; }
+        public ICollection<LithologicSubinterval> LithologicSubintervals { get; set; } = new HashSet<LithologicSubinterval>();
+
+        [NotMapped]
+        public ICollection<LithologicDescription> Descriptions { get; set; }
 
         #endregion
 
+        [NotMapped]
+        private DataRow _datarow; 
         /// <summary>
         /// The datarow of the Measurement within an IODP LORE Report.
         /// </summary>
         [NotMapped]
-        public DataRow DataRow { get; set; }
+        public DataRow DataRow { 
+            get 
+            { return _datarow; } 
+            set 
+            {
+                _datarow = value;
+                if (MeasurementData.Count  >0 )
+                {
+                    MeasurementData.Clear();
+                }
+                foreach (DataColumn column in DataRow.Table.Columns)
+                {
+                    var pair = new MeasurementColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
+                    pair.LithologicID = LithologicID;
+                    pair.LithologicSubID = LithologicSubID;
+                    MeasurementData.Add(pair);
+                }
+            }
+        }
 
         /// <summary>
         /// A lithologic description in which this Measurement was taken.
@@ -78,7 +119,7 @@ namespace DescLogicFramework
 
         public Measurement() 
         {
-            LithologicSubintervals = new HashSet<LithologicSubinterval>();
+            //LithologicSubintervals = new HashSet<LithologicSubinterval>();
         }
 
         public Measurement(SectionInfo sectionInfo) : this() { SectionInfo = sectionInfo; }

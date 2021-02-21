@@ -155,7 +155,7 @@ namespace DescLogicFramework
             }
             
         }
-        public string GenerateOffset(string Offset)
+        private string GenerateOffset(string Offset)
         {
             string output = "";
             string o = Regex.Replace(Offset.Trim(), "[^0-9.]", "");

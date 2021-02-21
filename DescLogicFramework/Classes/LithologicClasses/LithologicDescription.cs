@@ -39,24 +39,28 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(100)")]
         public string DescriptionType { get; set; } = string.Empty;
 
-        [NotMapped]
-        private List<DescriptionColumnValuePair> _backing = new List<DescriptionColumnValuePair>();
+       // [NotMapped]
+        //private List<DescriptionColumnValuePair> _backing = new List<DescriptionColumnValuePair>();
 
+
+        //TODO: Remove the whole column backing idea.
         public List<DescriptionColumnValuePair> DescriptionColumnValues
         {
-            get
-            {
-                if (_backing.Count == 0)
-                {
-                    foreach (DataColumn column in DataRow.Table.Columns)
-                    {
-                        var pair = new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
-                        _backing.Add(pair);
-                    }
+            get;
+            /* {
 
-                }
-                return _backing;
-            }
+                 if (_backing.Count == 0)
+                 {
+                     foreach (DataColumn column in DataRow.Table.Columns)
+                     {
+                         var pair = new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
+                         _backing.Add(pair);
+                     }
+
+                 }
+                 return _backing;
+                 
+        }*/
         }
 
         #endregion
@@ -64,16 +68,35 @@ namespace DescLogicFramework
         [NotMapped]
         private double _resolution = 1;
 
-        public List<LithologicSubinterval> LithologicSubintervals { get; } = new List<LithologicSubinterval>();
+        public List<LithologicSubinterval> LithologicSubintervals { get; } //= new List<LithologicSubinterval>();
 
         [NotMapped]
-        public DataRow DataRow { get; set; }
+        private DataRow _datarow;
+
+        [NotMapped]
+        public DataRow DataRow 
+        {
+            get { return _datarow; }
+            set {
+                _datarow = value;
+
+                foreach(DataColumn column in value.Table.Columns)
+                    {
+                    var pair = new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
+                    DescriptionColumnValues.Add(pair);
+                }
+            }
+        }
 
         /// <summary>
         /// Instantiates a new Lithologic Description
         /// </summary>
-        public LithologicDescription() { SectionInfo = new SectionInfo();}
+        public LithologicDescription() { /*SectionInfo = new SectionInfo();*/} //Issue with new SectionInfo Overwriting data from database
 
+        public LithologicDescription(SectionInfo sectionInfo)
+        {
+            SectionInfo = sectionInfo;
+        }
         /// <summary>
         /// Instantiates a new Lithologic Description 
         /// </summary>
@@ -93,19 +116,36 @@ namespace DescLogicFramework
         /// </summary>
         public void GenerateSubintervals()
         {
+            //Cases: where start and end are the same
+                //One Subinterval
+            //Case: where start is less than end
+                //If end-start is less than resolution: one subinterval
+                //if end-start is greater than resoltuion: end-start/resolution rounded up to nearest int is the number of subintervals
+
+
+            //Case: Accidentlly reversing End and Start Offset
             int subintervalCount = (int)Math.Ceiling((decimal)((EndOffset - StartOffset) / _resolution));
 
-            for (int currentSubintervalID = 1; currentSubintervalID <= subintervalCount; currentSubintervalID++)
+            if (subintervalCount == 0)
             {
-                LithologicSubinterval subinterval = new LithologicSubinterval(currentSubintervalID, this);
-
-                //Problem here is that you possibly create an extra longer interval because of the rounding error with the resolution and interval start-end distance.
-                //I'll leave it in because the measurement is based off the Description Interval--which is correct. The subinterval offsets are not output to file.
-                subinterval.StartOffset = StartOffset + _resolution*(currentSubintervalID-1);
-                subinterval.EndOffset = StartOffset + _resolution * currentSubintervalID;
-                //need to determine how subintervals will be uniquely named
+                LithologicSubinterval subinterval = new LithologicSubinterval(0, this);
                 LithologicSubintervals.Add(subinterval);
             }
+            else
+            {
+                for (int currentSubintervalID = 1; currentSubintervalID <= subintervalCount; currentSubintervalID++)
+                {
+                    LithologicSubinterval subinterval = new LithologicSubinterval(currentSubintervalID, this);
+
+                    //Problem here is that you possibly create an extra longer interval because of the rounding error with the resolution and interval start-end distance.
+                    //I'll leave it in because the measurement is based off the Description Interval--which is correct. The subinterval offsets are not output to file.
+                    subinterval.StartOffset = StartOffset + _resolution * (currentSubintervalID - 1);
+                    subinterval.EndOffset = StartOffset + _resolution * currentSubintervalID;
+                    //need to determine how subintervals will be uniquely named
+                    LithologicSubintervals.Add(subinterval);
+                }
+            }
+            
         }
 
     }

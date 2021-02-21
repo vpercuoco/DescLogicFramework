@@ -13,7 +13,7 @@ namespace DescLogicFramework.DataAccess
     /// <summary>
     /// Used to convert a csv file into a DataTable.
     /// </summary>
-    public class CSVReader : IDataTableHandler
+    public class CSVReader
     {
 
         public string ReadPath { get; set; }

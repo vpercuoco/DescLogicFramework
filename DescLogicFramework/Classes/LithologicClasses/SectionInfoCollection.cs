@@ -22,43 +22,29 @@ namespace DescLogicFramework
             {
                 return matchedSection;
             }
-            else
-            {
-                Sections.Add(section);
-                return section;
-            }
+
+            Sections.Add(section);
+            return section;
+
         }
 
-        public DataTable SectionsDatatable { get; set; } = ImportAllSections();
-        public static DataTable ImportAllSections()
+        public static DataTable ImportAllSections(string fileName)
         {
             var dataTableReader = new CSVReader();
-            dataTableReader.ReadPath = ConfigurationManager.AppSettings["AllSectionsFile"];
+            dataTableReader.ReadPath = fileName;
             return dataTableReader.Read();
 
         }
 
-        public void ParseSectionInfoFromDataTable(DataTable sectionsDatatable, SampleHierarchy hierarchyNames)
+        public void ParseSectionInfoFromDataTable(DataTable sectionsDatatable, IntervalHierarchyNames hierarchyNames)
         {
-
 
             foreach (DataRow row in sectionsDatatable.Rows)
             {
                 try
                 {
-                    SectionInfo section = new SectionInfo();
-                    section.Expedition = row[hierarchyNames.Expedition].ToString();
-                    section.Site = row[hierarchyNames.Site].ToString();
-                    section.Hole = row[hierarchyNames.Hole].ToString();
-                    section.Core = row[hierarchyNames.Core].ToString();
-                    section.Type = row[hierarchyNames.Type].ToString();
-                    section.Section = row[hierarchyNames.Section].ToString();
-                    //section.Half = row[hierarchyNames.Half].ToString();
-                    section.ParentTextID = row[hierarchyNames.ParentTextID].ToString();
-                    section.ArchiveTextID = row[hierarchyNames.ArchiveTextID].ToString();
-                    section.WorkingTextID = row[hierarchyNames.WorkingTextID].ToString();
-
-
+                    IntervalHierarchyValues values = Importer.GetHierarchyValuesFromDataRow(row, hierarchyNames);
+                    SectionInfo section = new SectionInfo(values);
                     Sections.Add(section);
                 }
                 catch (Exception)

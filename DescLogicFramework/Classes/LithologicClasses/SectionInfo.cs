@@ -43,7 +43,13 @@ namespace DescLogicFramework
             GetPropertiesFromSampleHierarchy(Importer.ParseSampleID(sampleID)); 
         }
 
-        public void GetPropertiesFromSampleHierarchy(SampleHierarchy hierarchy)
+        public SectionInfo(IntervalHierarchyValues sampleHierarchy)
+        {
+            GetPropertiesFromSampleHierarchy(sampleHierarchy);
+        }
+
+
+        public void GetPropertiesFromSampleHierarchy(IntervalHierarchyValues hierarchy)
         {
             SampleID = hierarchy.SampleID;
             Expedition = hierarchy.Expedition;
@@ -53,7 +59,9 @@ namespace DescLogicFramework
             Type = hierarchy.Type;
             Section = hierarchy.Section;
             Half = hierarchy.Half;
-
+            ParentTextID = hierarchy.ParentTextID;
+            WorkingTextID = hierarchy.WorkingTextID;
+            ArchiveTextID = hierarchy.ArchiveTextID;
         }
        
         /// <summary>

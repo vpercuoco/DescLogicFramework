@@ -4,14 +4,16 @@ using DescLogicFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DescLogicFramework.Migrations
 {
     [DbContext(typeof(DescDBContext))]
-    partial class DescDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210212122807_AddedTextIDandTestNumberToMeasurements")]
+    partial class AddedTextIDandTestNumberToMeasurements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

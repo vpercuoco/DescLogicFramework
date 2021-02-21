@@ -4,14 +4,16 @@ using DescLogicFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DescLogicFramework.Migrations
 {
     [DbContext(typeof(DescDBContext))]
-    partial class DescDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210211211157_IncreasedDescriptionColumnValueDataSize")]
+    partial class IncreasedDescriptionColumnValueDataSize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,14 +151,6 @@ namespace DescLogicFramework.Migrations
                     b.Property<double?>("StartOffset")
                         .HasColumnType("float");
 
-                    b.Property<string>("TestNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("TextID")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
                     b.HasKey("ID");
 
                     b.HasIndex("SectionInfoID");
@@ -172,8 +166,8 @@ namespace DescLogicFramework.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ColumnName")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("LithologicID")
                         .HasMaxLength(50)
@@ -186,8 +180,8 @@ namespace DescLogicFramework.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Value")
-                        .HasMaxLength(5000)
-                        .HasColumnType("varchar(5000)");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.HasKey("ID");
 

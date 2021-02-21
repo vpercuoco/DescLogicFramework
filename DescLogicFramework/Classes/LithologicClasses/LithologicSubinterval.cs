@@ -19,7 +19,7 @@ namespace DescLogicFramework
 
         public LithologicDescription LithologicDescription { get; set; }
 
-        public ICollection<Measurement> Measurements { get; set; } = new HashSet<Measurement>();      
+        public ICollection<Measurement> Measurements { get; set; }// = new HashSet<Measurement>();      
 
 
         public LithologicSubinterval() { }

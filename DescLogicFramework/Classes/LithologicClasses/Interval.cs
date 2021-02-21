@@ -32,13 +32,12 @@ namespace DescLogicFramework
         /// <summary>
         /// The bottom offset of the interval within the section.
         /// </summary>
-        
         public double? EndOffset{ get {return _endOffset; } set{ _endOffset = value; _endOffsetSet = true;} }
 
         /// <summary>
         /// The core section identifying information.
         /// </summary>
-        public SectionInfo SectionInfo { get; set; } 
+        public SectionInfo SectionInfo { get; set; }//= new SectionInfo(); //Issue here is that new sectioninfo overwrites data coming form database
 
         /// <summary>
         /// Determines if an interval falls completely or partially within this interval
