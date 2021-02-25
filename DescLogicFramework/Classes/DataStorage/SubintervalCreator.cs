@@ -74,7 +74,7 @@ namespace DescLogicFramework
             {
 
                 var measurements = dbContext.MeasurementDescriptions
-                       .Where(x=>x.ID > 9900000)
+                       .Where(x=>x.ID > 14100000-1)
                        .Include(x=>x.SectionInfo)
                        .Include(x=>x.LithologicSubintervals)
                        .Skip(skip)

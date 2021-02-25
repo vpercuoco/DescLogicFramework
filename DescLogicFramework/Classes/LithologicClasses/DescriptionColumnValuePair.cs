@@ -16,9 +16,17 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(5000)")]
         public string Value { get; set; }
 
+        [MaxLength(5000)]
+        [Column(TypeName = "varchar(5000)")]
+        public string CorrectedValue { get; set; }
+
         [MaxLength(500)]
         [Column(TypeName = "varchar(500)")]
         public string ColumnName { get; set; }
+
+        [MaxLength(500)]
+        [Column(TypeName = "varchar(500)")]
+        public string CorrectedColumnName { get; set; }
 
     }
 }

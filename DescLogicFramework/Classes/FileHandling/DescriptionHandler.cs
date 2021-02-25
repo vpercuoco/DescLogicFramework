@@ -16,34 +16,8 @@ namespace DescLogicFramework
     //TODO: Output warnings from the parsing into a LOG file that I can consult when dealing with error files.
     //TODO: Make bAtch CleanUpdescriptionFIles ASYNC
 
-    public class DescriptionHandler
+    public static class DescriptionHandler
     {
-
-        FileCollection FileCollection = new FileCollection();
-
-        public DescriptionHandler(string directory, string expedition)
-        {
-            FileCollection.AddFiles(directory, "*.csv");
-
-            foreach (string file in FileCollection.Filenames)
-            {
-                string currentFileName = Importer.GetFileName(file);
-
-                try
-                {
-                    CleanupDescriptionFile(file, expedition);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning(string.Format("{0}: Could not clean file", currentFileName));
-                    Log.Warning(string.Format("{0}: {1}", currentFileName, ex.Message));
-                    Log.Warning(string.Format("{0}: Stack Trace: {1}", currentFileName, ex.StackTrace));
-                }
-            }
-           
-
-        }
-
         public static async Task<ICollection<LithologicDescription>> GetDescriptionsFromFileAsync(string filename, [Optional] IntervalHierarchyNames columnIdentifiers)
         {
             columnIdentifiers = columnIdentifiers ?? new IntervalHierarchyNames()
@@ -77,7 +51,7 @@ namespace DescLogicFramework
                         SectionInfo section = new SectionInfo(Importer.GetHierarchyValuesFromDataRow(row, columnIdentifiers));
                         LithologicDescription description = new LithologicDescription();
                         description.SectionInfo = section;
-                        description.SectionInfo = await DatabaseWorkflowHandler.GetSectionInfoFromDatabaseForIntervalAsync(dbContext, description);
+                        description.SectionInfo = await DatabaseWorkflowHandler.GetSectionInfoFromDatabaseForIntervalAsync(dbContext, description).ConfigureAwait(true);
                         description.LithologicID = row["LithologicID_VP"].ToString();
                         description.DataRow = row;
                         description.DescriptionReport = row["Filename_VP"].ToString(); ;
@@ -99,18 +73,29 @@ namespace DescLogicFramework
         }
 
 
-
-
         #region CleaningUpDescriptionFiles
 
-        private static void CleanDescriptionFiles()
+        public static void CleanDescriptionFiles(string directory, string expedition)
         {
-            var list = new CinnamonList("ExpeditionList").Parameters;
-            list.Reverse();
 
-            foreach (var expedition in list)
+            FileCollection FileCollection = new FileCollection();
+
+            FileCollection.AddFiles(directory, "*.csv");
+
+            foreach (string file in FileCollection.Filenames)
             {
-                DescriptionHandler cleaner = new DescriptionHandler(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\AGU2019\" + expedition + @"\output\extracted_csv", expedition);
+                string currentFileName = Importer.GetFileName(file);
+
+                try
+                {
+                    CleanupDescriptionFile(file, expedition);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(string.Format("{0}: Could not clean file", currentFileName));
+                    Log.Warning(string.Format("{0}: {1}", currentFileName, ex.Message));
+                    Log.Warning(string.Format("{0}: Stack Trace: {1}", currentFileName, ex.StackTrace));
+                }
             }
         }
 

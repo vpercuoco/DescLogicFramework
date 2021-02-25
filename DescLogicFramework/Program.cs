@@ -30,11 +30,36 @@ namespace DescLogicFramework
                 .CreateLogger();
 
 
+            FileCollection fileCollection = new FileCollection();
+            fileCollection.AddFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\MAD\", "*.csv");
+           // fileCollection.Filenames.Reverse();
+            foreach (var file in fileCollection.Filenames)
+            {
+                var t = Task.Run(async () => await Workflow.GetMeasurementIDForMeasurementFile(file, @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\ConvertedMeasurements\" + Importer.GetFileName(file)).ConfigureAwait(true));
+                t.Wait();
+            }
+
+            //DescriptionHandler.CleanDescriptionFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\X372","372");
+
+
+         /*   var fileCollection = new FileCollection();
+            fileCollection.AddFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\AdditionalDataSets", "*.csv");
+            fileCollection.Filenames.Reverse();
+            foreach (var filename in fileCollection.Filenames)
+            {
+                var x = Task.Run(async () => await Workflow.UploadMeasurementsFromFileToDatabaseAsync(filename).ConfigureAwait(true));
+                x.Wait();
+            }
+         */
+
+
+
+
             //            Examples.GetMeasurementsFromFileThenGetCertainDescriptionColumns();
 
 
-            var x = Task.Run(async () => await SubintervalCreator.GetLithologicSubIntervalsForMeasurements());
-            x.Wait();
+            //var x = Task.Run(async () => await SubintervalCreator.GetLithologicSubIntervalsForMeasurements());
+           // x.Wait();
 
            // DatabaseWorkflowHandler.AttemptAtSQLRaw();
 

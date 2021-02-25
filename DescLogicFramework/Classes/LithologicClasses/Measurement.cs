@@ -18,42 +18,14 @@ namespace DescLogicFramework
         [Key]
         public int ID { get; set; }
 
+        public List<MeasurementColumnValuePair> MeasurementData {get; set;} = new List<MeasurementColumnValuePair>();
 
-        //[NotMapped]
-        //private List<MeasurementColumnValuePair> _backingData = new List<MeasurementColumnValuePair>();
-
-
-        //TODO: Get rid of backing data
-        public List<MeasurementColumnValuePair> MeasurementData 
-        {
-            /*get
-            {
-
-
-                /*
-                if (_backingData.Count == 0)
-                {
-                    foreach (DataColumn column in DataRow.Table.Columns)
-                    {
-                        var pair = new MeasurementColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
-                        pair.LithologicID = LithologicID;
-                        pair.LithologicSubID = LithologicSubID;
-                        _backingData.Add(pair);
-                    }
-
-                }
-                return _backingData;
-               
-                
-            }*/
-            get;
-            set;
-        } = new List<MeasurementColumnValuePair>();
-
+        [NotMapped]
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
         public string LithologicID { get { return LithologicDescription?.LithologicID ?? "-1"; } set {; } }
 
+        [NotMapped]
         public int? LithologicSubID { get{  return LithologicSubinterval?.LithologicSubID ?? -1;}  set {; } }
 
         [MaxLength(100)]
@@ -87,6 +59,7 @@ namespace DescLogicFramework
 
         [NotMapped]
         private DataRow _datarow; 
+
         /// <summary>
         /// The datarow of the Measurement within an IODP LORE Report.
         /// </summary>

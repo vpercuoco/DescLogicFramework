@@ -116,6 +116,29 @@ namespace DescLogicFramework
             return recordExists;
         }
 
+
+        public static async Task<int> GetIDForMeasurement(DescDBContext dbContext, Measurement measurement)
+        {
+            var record = await dbContext.MeasurementDescriptions
+          .Where(x => x.SectionInfo.ID == measurement.SectionInfo.ID)
+          .Where(x => x.TextID == measurement.TextID)
+          .Where(x => x.TestNumber == measurement.TestNumber)
+          .Where(x=>x.InstrumentSystem == measurement.InstrumentSystem)
+          .Where(x => x.StartOffset == measurement.StartOffset && x.EndOffset == measurement.EndOffset)
+          .FirstOrDefaultAsync().ConfigureAwait(true);
+
+            if (record != null)
+            {
+                return record.ID;
+            }
+            else
+            {
+                return -1;
+            }
+            
+
+        }
+
         #endregion
 
 

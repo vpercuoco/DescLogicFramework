@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
+using System.Linq;
+using System.Data;
 
 namespace DescLogicFramework
 {
@@ -30,7 +32,7 @@ namespace DescLogicFramework
             {
                 foreach (var measurement in measurements)
                 {
-                    var measurementExists = await DatabaseWorkflowHandler.DoesMeasurementExistInDatabase(dBContext, measurement);
+                    var measurementExists = await DatabaseWorkflowHandler.DoesMeasurementExistInDatabase(dBContext, measurement).ConfigureAwait(true);
                     
                     if (measurementExists)
                     {
@@ -216,6 +218,74 @@ namespace DescLogicFramework
 
         #region QueryingData
 
+        
+        public static async Task<bool> GetMeasurementIDForMeasurementFile(string file, string exportFilePath)
+        {
+            ICollection<Measurement> measurements = await MeasurementHandler.GetMeasurementsFromFileAsync(file).ConfigureAwait(true);
+
+            using (DescDBContext dBContext = new DescDBContext())
+            {
+
+                foreach (var measurement in measurements)
+                {
+                    measurement.ID = await DatabaseWorkflowHandler.GetIDForMeasurement(dBContext, measurement).ConfigureAwait(true);
+
+                }
+
+            }
+
+
+
+            //Column Names
+            HashSet<string> columns = measurements.First().MeasurementData.Select(x=>x.ColumnName).ToHashSet();
+
+
+            //Check if all measurements have the same Columns
+            foreach (var measurement in measurements)
+            {
+                var compareColumns = measurement.MeasurementData.Select(x => x.ColumnName).ToHashSet();
+                if ( !columns.SetEquals(compareColumns))
+                {
+                    return false;
+                }
+            }
+
+
+            //TODO: Construct new Datatable
+            DataTable dataTable = new DataTable();
+
+            foreach (var column in columns)
+            {
+                dataTable.Columns.Add(column);
+                
+            }
+            dataTable.Columns.Add("MeasurementID").SetOrdinal(0);
+
+
+            int currentRow = 0;
+            foreach (var measurement in measurements)
+            {
+                dataTable.ImportRow(measurement.DataRow);
+                var row = dataTable.Rows[currentRow];
+                row.BeginEdit();
+                row["MeasurementID"] = measurement.ID;
+                row.EndEdit();
+
+                currentRow++;
+            }
+
+           //AddID column
+
+
+            //Export measurements to File
+
+            Importer.ExportDataTableAsNewFile(exportFilePath, dataTable);
+           
+
+            return true;
+
+        }
+        
         #endregion
 
 

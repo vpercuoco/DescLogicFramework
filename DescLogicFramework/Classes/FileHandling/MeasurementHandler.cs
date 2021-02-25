@@ -35,7 +35,8 @@ namespace DescLogicFramework
 
             };
 
-            string InstrumentSystem = Importer.GetFileNameWithoutExtension(filename);
+            //TODO: need to get this some other way
+            string InstrumentSystem =  Importer.GetFileNameWithoutExtension(filename);
 
             if (InstrumentSystem == "CARB" || InstrumentSystem == "ICP")
             {
@@ -181,16 +182,7 @@ namespace DescLogicFramework
         }
 
 
-
-        //TODO: Given two Measurment files:
-        //1. Join the datasets together where SectionInfos and intervals are the same
-                // outputs a datatable with both datatables joined
-                //First columns have SectionInfo
-                // Prefix columns with original report measurement identifier (i,e, GRA, MAD)
-        //2. Foreach record get certain descritpions
-                //--N
-
-
+       
 
         /*
         public static async Task<ICollection<LithologicDescription>[]> GetDescriptionsColumnValuesAsync(DescDBContext dbContext, IEnumerable<Measurement> measurements, ICollection<string> columns)

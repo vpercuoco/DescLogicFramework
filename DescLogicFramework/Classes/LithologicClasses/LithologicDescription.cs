@@ -19,6 +19,7 @@ namespace DescLogicFramework
         [Key]
         public int ID { get; set; }
 
+        [NotMapped]
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
         public string LithologicID { get; set; } = "-1";
@@ -27,41 +28,23 @@ namespace DescLogicFramework
         [Column(TypeName = "varchar(100)")]
         public string DescriptionReport { get; set; } = string.Empty;
 
+        [NotMapped]
         [MaxLength(100)]
         [Column(TypeName = "varchar(100)")]
         public string DescriptionTab { get; set; } = string.Empty;
 
+        [NotMapped]
         [MaxLength(100)]
         [Column(TypeName = "varchar(100)")]
         public string DescriptionGroup { get; set; } = string.Empty;
 
+        [NotMapped]
         [MaxLength(100)]
         [Column(TypeName = "varchar(100)")]
         public string DescriptionType { get; set; } = string.Empty;
 
-       // [NotMapped]
-        //private List<DescriptionColumnValuePair> _backing = new List<DescriptionColumnValuePair>();
 
-
-        //TODO: Remove the whole column backing idea.
-        public List<DescriptionColumnValuePair> DescriptionColumnValues
-        {
-            get;
-            /* {
-
-                 if (_backing.Count == 0)
-                 {
-                     foreach (DataColumn column in DataRow.Table.Columns)
-                     {
-                         var pair = new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
-                         _backing.Add(pair);
-                     }
-
-                 }
-                 return _backing;
-                 
-        }*/
-        }
+        public List<DescriptionColumnValuePair> DescriptionColumnValues  { get; }
 
         #endregion
 
