@@ -44,14 +44,14 @@ namespace DescLogicFramework
         public string DescriptionType { get; set; } = string.Empty;
 
 
-        public List<DescriptionColumnValuePair> DescriptionColumnValues  { get; }
+        public List<DescriptionColumnValuePair> DescriptionColumnValues { get; } = new List<DescriptionColumnValuePair>();
 
         #endregion
 
         [NotMapped]
         private double _resolution = 1;
 
-        public List<LithologicSubinterval> LithologicSubintervals { get; } //= new List<LithologicSubinterval>();
+        public List<LithologicSubinterval> LithologicSubintervals { get; } = new List<LithologicSubinterval>();
 
         [NotMapped]
         private DataRow _datarow;
@@ -62,7 +62,7 @@ namespace DescLogicFramework
             get { return _datarow; }
             set {
                 _datarow = value;
-
+                
                 foreach(DataColumn column in value.Table.Columns)
                     {
                     var pair = new DescriptionColumnValuePair() { ColumnName = column.ColumnName, Value = DataRow[column].ToString() };
@@ -74,7 +74,7 @@ namespace DescLogicFramework
         /// <summary>
         /// Instantiates a new Lithologic Description
         /// </summary>
-        public LithologicDescription() { /*SectionInfo = new SectionInfo();*/} //Issue with new SectionInfo Overwriting data from database
+        public LithologicDescription() { SectionInfo = new SectionInfo();} //Issue with new SectionInfo Overwriting data from database
 
         public LithologicDescription(SectionInfo sectionInfo)
         {

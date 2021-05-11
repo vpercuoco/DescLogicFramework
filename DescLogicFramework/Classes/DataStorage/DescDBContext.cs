@@ -13,8 +13,8 @@ namespace DescLogicFramework
         //I am manually overriding this method so I can configure the DBcontext options, see definiition of DBContext or MIcrosoft Documentation for more info
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=(localdb)\\ProjectsV13;Database=DESCDatabase;Trusted_Connection=True;");
-
+           // optionsBuilder.UseSqlServer("Server=(localdb)\\ProjectsV13;Database=DESCDatabase;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=VPL;Database=DESCDatabaseDeveloper;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

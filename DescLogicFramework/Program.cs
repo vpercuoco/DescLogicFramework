@@ -17,12 +17,15 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
+
+
 namespace DescLogicFramework
 {
     public class Program
     {
         static void Main(string[] args)
         {
+            Console.WriteLine($"Starting up at: {DateTime.Now.ToString()}");
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
@@ -30,117 +33,128 @@ namespace DescLogicFramework
                 .CreateLogger();
 
 
-            FileCollection fileCollection = new FileCollection();
-            fileCollection.AddFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\MAD\", "*.csv");
-           // fileCollection.Filenames.Reverse();
-            foreach (var file in fileCollection.Filenames)
+            #region MergingCSVS
+            /* 
+             * 
+             * Merge CSVs
+          
+             */
+            /*
+            string directory = @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\AGU2019\";
+
+
+            List<string> filenames = new List<string>();
+            foreach (var item in Directory.GetFiles(directory, "*.csv", SearchOption.AllDirectories))
             {
-                var t = Task.Run(async () => await Workflow.GetMeasurementIDForMeasurementFile(file, @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\ConvertedMeasurements\" + Importer.GetFileName(file)).ConfigureAwait(true));
-                t.Wait();
+                if (item.Contains("CARB.csv"))
+                {
+                    filenames.Add(item);
+                }
             }
+           
 
-            //DescriptionHandler.CleanDescriptionFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\X372","372");
-
-
-         /*   var fileCollection = new FileCollection();
-            fileCollection.AddFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\AdditionalDataSets", "*.csv");
-            fileCollection.Filenames.Reverse();
-            foreach (var filename in fileCollection.Filenames)
-            {
-                var x = Task.Run(async () => await Workflow.UploadMeasurementsFromFileToDatabaseAsync(filename).ConfigureAwait(true));
-                x.Wait();
-            }
-         */
+            string[] filePaths = filenames.ToArray();
 
 
+            string sourceFolder = @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\ConvertedMeasurements\MAD\";
+            string destinationFile = @"C:\Users\vperc\Desktop\CombinedCsvs\CARB_Combined.csv";
+
+            // Specify wildcard search to match CSV files that will be combined
+            //string[] filePaths = Directory.GetFiles(sourceFolder, "*.csv");
+            
+            MergeFiles(filePaths, destinationFile);
+
+            */
+            #endregion
+
+            /*
+            // Cleaning description files: 
+
+            string directory = @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\CorrectedFIleThatCanNowBeUploaded\";
+            string exportDirectory = @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\SingleExport\";
+            string errorDirectory = @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\SingleError\";
+
+            DescriptionHandler.CleanDescriptionFiles(directory, exportDirectory, errorDirectory);
+            */
 
 
-            //            Examples.GetMeasurementsFromFileThenGetCertainDescriptionColumns();
+            /*
+            //Uploading Descriptions to database
+            
+            string fileDirectory = @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\SingleExport\";
+            Workflow.AddAllDescriptionsToDatabase(fileDirectory);
+            
+            */
 
 
-            //var x = Task.Run(async () => await SubintervalCreator.GetLithologicSubIntervalsForMeasurements());
-           // x.Wait();
 
-           // DatabaseWorkflowHandler.AttemptAtSQLRaw();
+            /*
+            //Generate subintervals for Descriptions
+           
+            var t = Task.Run(async () => await Workflow.EnsureAllLithologicDescriptionsHaveSubintervalsAsync().ConfigureAwait(true));
+            t.Wait();
+            */
+
+            Workflow.AssociateSubIntervalsWithMeasurements();
 
 
-           // var list = new CinnamonList("ExpeditionList").Parameters;
-           // List<string> expeditions = new List<string>();
-           // foreach (var item in list)
-           // {
-           //    expeditions.Add( item.Remove(0, 1));
-           // }
-           // expeditions.Reverse();
 
-           //// expeditions.Remove("330");
-           // //expeditions.Remove("323");
-           // //expeditions.Remove("321");
-           // //  AddAllDescriptionsToDatabase();
-           // foreach (var item in expeditions)
-           // {
-           //     Console.WriteLine(string.Format("Creating Subintervals for {0}",item.ToString()));
 
-           //     var xx = Task.Run(async () => await Workflow.EnsureAllLithologicDescriptionsHaveSubintervals(item.ToString()));
-           //     xx.Wait();
-           // }
 
+            // Examples.GetMeasurementsWithDrillingDisturbances();
+
+            //Examples.DisplayMeasurementsForALithology("clast");
+
+            // Examples.AssociateSubIntervalsForMeasurements();
+
+            //Examples.GetMeasurementsFromFileThenGetCertainDescriptionColumns();
+
+
+
+
+
+
+
+            /*
+            string filename = @"C:\Users\vperc\Desktop\X368_drilling_dist_macroscopic_macroscopic_U1502A.csv";
+            var x = Examples.FormatDrillingDisturbanceFile(filename);
 
             Log.CloseAndFlush();
 
-
-           // // var myTasks = new List<Task<bool>>();
-
-           // // var x = Task.Run(async () => await SubintervalCreator.EnsureAllLithologicDescriptionsHaveSubintervals());
-           // //  var y = Task.Run(async () => await SubintervalCreator.EnsureAllLithologicDescriptionsHaveSubintervals());
-           // // var z = Task.Run(async () => await SubintervalCreator.EnsureAllLithologicDescriptionsHaveSubintervals());
-
-           // // myTasks.Add(x);
-           // // myTasks.Add(y);
-           // // myTasks.Add(z);
-
-           // // var t =  Task.Run(async () => await Task.WhenAll(myTasks));
-           // // t.Wait();
-           // // var cc = t.Result;
-
-           // var x = Task.Run(async () => await SubintervalCreator.GetDescriptionsForMeasurment("MAD", new List<string>() {"Expedition_VP" }).ConfigureAwait(true));
-
-           //// var x = Task.Run(async () => await SubintervalCreator.GetLithologicSubIntervalsForMeasurements().ConfigureAwait(true));
-           // x.Wait();
-            
-            
-   
+            Console.WriteLine($"Program finished at: {DateTime.Now.ToString(CultureInfo.CurrentCulture)}");
+            */
+        }
 
 
+        public static void MergeFiles(string[] filePaths, string destinationFile)
+        {
+            StreamWriter fileDest = new StreamWriter(destinationFile, true);
 
-            Console.WriteLine("Starting up at " + DateTime.Now.ToString());
+            int i;
+            for (i = 0; i < filePaths.Length; i++)
+            {
+                string file = filePaths[i];
 
-            var conn = ConfigurationManager.ConnectionStrings["DBconnection"];
+                string[] lines = File.ReadAllLines(file);
 
-            ProgramSettings.SendDataToDESCDataBase = false;
+                if (i > 0)
+                {
+                    lines = lines.Skip(1).ToArray(); // Skip header row for all but first file
+                }
 
-            ProgramSettings.SendDataToLithologyDataBase = false;
+                foreach (string line in lines)
+                {
+                    fileDest.WriteLine(line);
+                }
+            }
 
-            ProgramSettings.ExportCachesToFiles = false;
-
-            ProgramSettings.ProcessMeaurements = false;
-
-            _ = new ProgramWorkFlowHandler();
-            Console.WriteLine("Program finished at " + DateTime.Now.ToString(CultureInfo.CurrentCulture));
+            fileDest.Close();
+        }
+        public static void MergeCSVs(string sourceFolder, string destinationFile, [Optional] List<string> filenames)
+        {
 
         }
 
-       
-
     }
 
-    public static class ProgramSettings
-    {
-        public static bool SendDataToDESCDataBase { get; set; } = false;
-        public static bool SendDataToLithologyDataBase { get; set; } = false;
-        public static bool ExportCachesToFiles { get; set; } = false;
-        public static bool ProcessMeaurements { get; set; } = false;
-    }
-
-
-    
 }

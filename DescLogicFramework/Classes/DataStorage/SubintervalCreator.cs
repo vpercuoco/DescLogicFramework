@@ -9,15 +9,14 @@ using System.Data;
 
 namespace DescLogicFramework
 {
-    public class SubintervalCreator
+    public static class SubintervalCreator
     {
         /// <summary>
         /// T
         /// </summary>
         /// <param name="descriptionsToTake">The number of records to create intervals for before the dbContext is disposed</param>
-        /// <param name="expedition">The expedition used to filter descriptions</param>
         /// <returns></returns>
-        public static async Task<bool> CreateSubIntervalsForDescriptions(int descriptionsToTake, string expedition)
+        public static async Task<bool> CreateSubIntervalsForDescriptions(int descriptionsToTake)
         {
             //Do this expedition by expedition, after expedition measurements have been uploaded, this would only need to be called once
 
@@ -32,9 +31,9 @@ namespace DescLogicFramework
                         .ThenInclude(x => x.SectionInfo)
                         .Include(x => x.LithologicSubintervals)
                         .ThenInclude(x => x.LithologicDescription)  //The object graph, I want to add subintervals to a description, and add sectioninfo and description references to those subintervals
-                        .Where(x => x.SectionInfo.Expedition == expedition)
+                       // .Where(x => x.SectionInfo.Expedition == expedition)
                         .Where(x => x.LithologicSubintervals.Any() == false)  //The description should not have subintervals generated for it yet.
-                        .Where (x=>x.SectionInfo.Expedition == expedition)
+                      //  .Where (x=>x.SectionInfo.Expedition == expedition)
                         .Where (x=>x.EndOffset > x.StartOffset) //There are some descriptions that have incorrectly entered start and end offsets
                         .Take(descriptionsToTake)
                         .ToHashSet();
@@ -65,8 +64,7 @@ namespace DescLogicFramework
         }
 
 
-
-        public static async Task<bool> GetMeasurementsForSubIntervals(int skip, int take)
+        private static async Task<bool> GetMeasurementsForSubIntervals(int skip, int take)
         {
             Console.Clear();
 
@@ -74,7 +72,7 @@ namespace DescLogicFramework
             {
 
                 var measurements = dbContext.MeasurementDescriptions
-                       .Where(x=>x.ID > 14100000-1)
+                       .Where(x=>x.ID > 14221456 - 1)  //Enable this to start attributing descriptions after a certain ID, it's useful if adding new measurements
                        .Include(x=>x.SectionInfo)
                        .Include(x=>x.LithologicSubintervals)
                        .Skip(skip)
@@ -154,7 +152,7 @@ namespace DescLogicFramework
             {
                 keepRunning = await SubintervalCreator.GetMeasurementsForSubIntervals(skip, take);
                 skip = skip + take;
-                Console.WriteLine("Task Completed 1000 records");
+                Console.WriteLine("Task Completed 10000 records");
             }
             return true;
         }
@@ -177,33 +175,10 @@ namespace DescLogicFramework
                         .ToListAsync().ConfigureAwait(true);
             }
 
-
-            //foreach (var measurement in measurements)
-            //{
-            //    PrintMeasurementToConsole(measurement);
-            //    foreach (var subinterval in measurement.LithologicSubintervals)
-            //    {
-            //        PrintSubintervalToConsole(subinterval);
-            //        PrintDescriptionToConsole(subinterval.LithologicDescription);
-            //    }
-            //}
-
             return true;
 
         }
 
 
-        public static void PrintMeasurementToConsole(Measurement measurement)
-        {
-            Console.WriteLine(string.Format("ID:{0}, System:{1}, Test:{2}, TextID:{3}", measurement.ID, measurement.InstrumentSystem, measurement.TestNumber, measurement.TextID));
-        }
-        public static void PrintSubintervalToConsole(LithologicSubinterval subinterval)
-        {
-            Console.WriteLine(string.Format("ID:{0}, LithologicSubID:{1}, StartOffset:{2}, EndOffset:{3}", subinterval.ID, subinterval.LithologicSubID, subinterval.StartOffset, subinterval.EndOffset));
-        }
-        public static void PrintDescriptionToConsole(LithologicDescription description)
-        {
-            Console.WriteLine(string.Format("ID:{0}, LithologicSubID:{1}, StartOffset:{2}, EndOffset:{3}", description.ID, description.LithologicID, description.StartOffset, description.EndOffset));
-        }
     }
 }

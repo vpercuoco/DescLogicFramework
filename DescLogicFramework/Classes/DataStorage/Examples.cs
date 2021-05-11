@@ -4,8 +4,14 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Data;
+
 using System.Threading;
 using System.Threading.Tasks;
+using ServiceStack;
+using System.IO;
+using DescLogicFramework.DataAccess;
+using System.Configuration;
+using Serilog;
 
 namespace DescLogicFramework
 {
@@ -20,7 +26,7 @@ namespace DescLogicFramework
 
             List<string> columnNames = new List<string>() { "Expedition_VP", "Site_VP", "Hole_VP" };
 
-            var measurementCollection = Task.Run(async () => await MeasurementHandler.GetMeasurementsFromFileAsync(filename));
+            var measurementCollection = Task.Run(async () => await MeasurementHandler.GetMeasurementsFromFileAsync(filename).ConfigureAwait(false));
             measurementCollection.Wait();
             var measurements = measurementCollection.Result;
 
@@ -29,7 +35,7 @@ namespace DescLogicFramework
             {
                 var multipleLookupTasks = Task.Run(async () =>
                 {
-                    var descriptionArray = await MeasurementHandler.GetDescriptionsForMeasurementAsync(dBContext, measurements, columnNames);
+                    var descriptionArray = await MeasurementHandler.GetDescriptionsForMeasurementAsync(dBContext, measurements, columnNames).ConfigureAwait(false);
                     return descriptionArray;
                 });
 
@@ -62,7 +68,7 @@ namespace DescLogicFramework
             ICollection<Measurement> measurements;
             try
             {
-                var x = Task.Run(async () => await MeasurementHandler.GetMeasurementsFromFileAsync(filename));
+                var x = Task.Run(async () => await MeasurementHandler.GetMeasurementsFromFileAsync(filename).ConfigureAwait(false));
                 x.Wait();
                 measurements = x.Result;
             }
@@ -80,7 +86,7 @@ namespace DescLogicFramework
             {
                 ICollection<string> columns = new HashSet<string>() { "Expedition_VP", "Site_VP", "Hole_VP" };
 
-                var y = Task.Run(async () => await MeasurementHandler.GetDescriptionsWithinMeasurementIntervalAsync(dBContext, measurement, columns));
+                var y = Task.Run(async () => await MeasurementHandler.GetDescriptionsWithinMeasurementIntervalAsync(dBContext, measurement, columns).ConfigureAwait(false));
                 y.Wait();
                 var t = y.Result;
 
@@ -92,12 +98,84 @@ namespace DescLogicFramework
             }
         }
 
+        public static void DisplayMeasurementsForALithology(string principalLithology)
+        {
+            var t = Task.Run(async () => await QueryPlayground.GetMeasurementIDsForLithology(principalLithology).ConfigureAwait(true));
+            t.Wait();
+            foreach (var item in t.Result)
+            {
+                Console.WriteLine(item.ID);
+            }
+        }
 
 
-        //This needs to be a mashup of measurements from multiple files
-        public static void GetMultipleMeasurementsOnOneRow()
+        /*
+        public static void GetMeasurementIDsForMeasurementFiles()
         {
 
+            FileCollection fileCollection = new FileCollection();
+            fileCollection.AddFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\MAD\", "*.csv");
+            // fileCollection.Filenames.Reverse();
+            foreach (var file in fileCollection.Filenames)
+            {
+                var t = Task.Run(async () => await Workflow.GetMeasurementIDForMeasurementFile(file, @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\ConvertedMeasurements\" + Importer.GetFileName(file)).ConfigureAwait(true));
+                t.Wait();
+            }
+
+           // DescriptionHandler.CleanDescriptionFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\X372", "372");
+
+            fileCollection = new FileCollection();
+            fileCollection.AddFiles(@"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\AdditionalDataSets", "*.csv");
+            fileCollection.Filenames.Reverse();
+            foreach (var filename in fileCollection.Filenames)
+            {
+                var x = Task.Run(async () => await Workflow.UploadMeasurementsFromFileToDatabaseAsync(filename).ConfigureAwait(true));
+                x.Wait();
+            }
         }
+        */
+
+        public static void GetMeasurementsWithDrillingDisturbances()
+        {
+           var x = Task.Run(async() => await QueryPlayground.GetMeasurementsWithDrillingDisturbances("GRA").ConfigureAwait(true));
+           x.Wait();
+           ICollection<Mashup> measurements = x.Result;
+            HashSet<string> values = new HashSet<string>(); 
+
+            //Console.WriteLine("MeasurementID,LithologicSubID,DescriptionColumnValuePairID,ColumnName,ColumnValue");
+            foreach (var item in measurements)
+            {
+                // Console.WriteLine($"{item.MeasurementID},{item.LithologicSubID},{item.ColumnValuePairID},{item.ColumnName},{item.ColumnValue}");
+                values.Add(item.WriteString());
+            }
+
+            File.AppendAllLines(@"C:\Users\vperc\Desktop\GRA_Mashup\GRA_DrillingDisturbances", values);
+           
+        }
+
+
+        public static void CorrectDrillingDisturbanceFiles()
+        {
+
+            string folder = @"C:\Users\vperc\Desktop\All Hard Drive Files\DESC_DATAMINE\CleanedLithologies\ErrorFilesWithData\DrillingDisturbancesFilesToBeCorrected\";
+
+            string newFolder = @"C:\Users\vperc\Desktop\AddedSampleID\";
+            string drillingExportsFolder = @"C:\Users\vperc\Desktop\CorrectedDrilling\";
+
+            FileCollection files = new FileCollection();
+            files.AddFiles(folder, "*.csv");
+
+
+            foreach (var file in files.Filenames)
+            {
+                string currentFileName = Path.GetFileName(file);
+                string newFileLocation = Path.Combine(drillingExportsFolder, currentFileName);
+                //Examples.AddSampleIDColumnToFileAndExport(file, newFileLocation);
+                DrillingCorrection.FormatDrillingDisturbanceFile(file, newFileLocation);
+
+            }
+        }
+        
+        
     }
 }

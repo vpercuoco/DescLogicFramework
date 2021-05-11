@@ -18,6 +18,12 @@ namespace DescLogicFramework
 
     public static class DescriptionHandler
     {
+        /// <summary>
+        /// Gets a collection of LithologicDescriptions from a corrected file. 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="columnIdentifiers"></param>
+        /// <returns></returns>
         public static async Task<ICollection<LithologicDescription>> GetDescriptionsFromFileAsync(string filename, [Optional] IntervalHierarchyNames columnIdentifiers)
         {
             columnIdentifiers = columnIdentifiers ?? new IntervalHierarchyNames()
@@ -50,8 +56,8 @@ namespace DescLogicFramework
                     {
                         SectionInfo section = new SectionInfo(Importer.GetHierarchyValuesFromDataRow(row, columnIdentifiers));
                         LithologicDescription description = new LithologicDescription();
-                        description.SectionInfo = section;
-                        description.SectionInfo = await DatabaseWorkflowHandler.GetSectionInfoFromDatabaseForIntervalAsync(dbContext, description).ConfigureAwait(true);
+                       // description.SectionInfo = section;
+                        description.SectionInfo = await DatabaseWorkflowHandler.GetSectionInfoFromDatabaseForIntervalAsync(dbContext, section).ConfigureAwait(true);
                         description.LithologicID = row["LithologicID_VP"].ToString();
                         description.DataRow = row;
                         description.DescriptionReport = row["Filename_VP"].ToString(); ;
@@ -75,7 +81,7 @@ namespace DescLogicFramework
 
         #region CleaningUpDescriptionFiles
 
-        public static void CleanDescriptionFiles(string directory, string expedition)
+        public static void CleanDescriptionFiles(string directory, string exportDirectory, string errorExportDirectory)
         {
 
             FileCollection FileCollection = new FileCollection();
@@ -85,10 +91,13 @@ namespace DescLogicFramework
             foreach (string file in FileCollection.Filenames)
             {
                 string currentFileName = Importer.GetFileName(file);
+                string exportFileName = exportDirectory + currentFileName;
+                string errorFileName = errorExportDirectory + currentFileName;
+
 
                 try
                 {
-                    CleanupDescriptionFile(file, expedition);
+                    CleanupDescriptionFile(file, exportFileName, errorFileName);
                 }
                 catch (Exception ex)
                 {
@@ -99,12 +108,10 @@ namespace DescLogicFramework
             }
         }
 
-        public static void CleanupDescriptionFile(string filePath, string expedition)
+        private static void CleanupDescriptionFile(string filePath, string exportFilePath, string errorExportFilePath)
         {
 
             var iodpDataTable = Importer.ImportDataTableFromFile(filePath);
-
-            string exportFilePath =  Directory.CreateDirectory(ConfigurationManager.AppSettings["ExportDirectory"] + expedition + @"\").FullName + Importer.GetFileName(filePath);
 
             string currentFileName = Importer.GetFileName(filePath);
             
@@ -113,13 +120,13 @@ namespace DescLogicFramework
                 Importer.CheckFile(iodpDataTable);
                 AddMissingColumnsToDescriptionTable(iodpDataTable.DataTable);
                 AddDataToHierarchyColumns(iodpDataTable, Importer.GetFileName(filePath), SectionInfoCollection.ImportAllSections(ConfigurationManager.AppSettings["AllSectionsFile"]));
-                Log.Information(string.Format("{0}: Processed successfully", currentFileName));
+                Log.Information($"{currentFileName}: Processed successfully");
             }
            catch (Exception ex)
             {
-                Log.Warning(string.Format("{0}: {1}", currentFileName, ex.Message));
-               
-                exportFilePath = Directory.CreateDirectory(ConfigurationManager.AppSettings["ErrorExportDirectory"] + expedition+ @"\").FullName + Importer.GetFileName(filePath);
+                Log.Warning($"{currentFileName}: {ex.Message}");
+
+                exportFilePath = errorExportFilePath;
             }
 
 
@@ -129,12 +136,12 @@ namespace DescLogicFramework
             }
             catch (Exception)
             {
-                throw new Exception(string.Format("{0}: Error exporting to file", currentFileName));
+                throw new Exception($"{currentFileName}: Error exporting to file");
             }
 
         }
 
-        public static void AddMissingColumnsToDescriptionTable(DataTable dataTable)
+        private static void AddMissingColumnsToDescriptionTable(DataTable dataTable)
         {
          
             string[] columnNames = new string[] 
@@ -166,7 +173,7 @@ namespace DescLogicFramework
 
         }
 
-        public static (string Archive, string Working, string Parent) GetSectionTextIDsForDescription(DataTable allSections, LithologicDescription description, IntervalHierarchyNames columnNames)
+        private static (string Archive, string Working, string Parent) GetSectionTextIDsForDescription(DataTable allSections, LithologicDescription description, IntervalHierarchyNames columnNames)
         {
          
                 var matchingTextID = allSections.AsEnumerable().Where(x => x.Field<string>(columnNames.Expedition) == description.SectionInfo.Expedition
@@ -187,7 +194,7 @@ namespace DescLogicFramework
 
         }
 
-        public static void AddDataToHierarchyColumns(IODPDataTable IODPDataTable, string fileName, DataTable allSectionsDataTable)
+        private static void AddDataToHierarchyColumns(IODPDataTable IODPDataTable, string fileName, DataTable allSectionsDataTable)
         {
          
             int rowNumber = 1;
@@ -250,7 +257,6 @@ namespace DescLogicFramework
                 rowNumber++;
             }
         }
-
 
         #endregion
     }

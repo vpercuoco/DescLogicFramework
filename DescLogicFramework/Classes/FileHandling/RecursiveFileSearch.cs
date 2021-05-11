@@ -40,10 +40,10 @@ namespace DescLogicFramework
                     Console.WriteLine("The drive {0} could not be read", di.Name);
                     continue;
                 }
-                //  System.IO.DirectoryInfo rootDir = di.RootDirectory;
+                 // System.IO.DirectoryInfo rootDir = di.RootDirectory;
                
 
-                // WalkDirectoryTree(rootDir);
+                 //WalkDirectoryTree(rootDir);
 
             }
             return Directory.GetFiles(directory, extension);

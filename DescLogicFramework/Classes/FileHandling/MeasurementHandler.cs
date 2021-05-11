@@ -12,6 +12,12 @@ namespace DescLogicFramework
 {
     public static class MeasurementHandler
     {
+        /// <summary>
+        /// Asynchronously gets a collection of IODP measurements from a .csv file.
+        /// </summary>
+        /// <param name="filename">The .csv file location</param>
+        /// <param name="columnIdentifiers">Optional parameter which specifies the file's column names</param>
+        /// <returns>A collection of measurements</returns>
         public static async Task<ICollection<Measurement>> GetMeasurementsFromFileAsync(string filename, [Optional] IntervalHierarchyNames columnIdentifiers)
         {
             columnIdentifiers = columnIdentifiers ?? new IntervalHierarchyNames()
@@ -80,7 +86,7 @@ namespace DescLogicFramework
                 ICollection<SectionInfo> sections;
                 try
                 {
-                    sections = await DatabaseWorkflowHandler.GetAllSectionsFromDatabaseForExpeditionAsync(dbContext, expeditions);
+                    sections = await DatabaseWorkflowHandler.GetAllSectionsFromDatabaseForExpeditionAsync(dbContext, expeditions).ConfigureAwait(false);
 
                 }
                 catch (Exception)
@@ -100,13 +106,21 @@ namespace DescLogicFramework
             }
         }
 
+        /// <summary>
+        /// Asynchronously gets a collection of lithologic descriptions from the database which fall within the measurement interval.
+        /// </summary>
+        /// <param name="dbContext">A DESCDatabase context</param>
+        /// <param name="measurement">A measurement interval</param>
+        /// <param name="columnNames">Lithologic description columns to return</param>
+        /// <returns></returns>
         public static async Task<ICollection<LithologicDescription>> GetDescriptionsWithinMeasurementIntervalAsync(DescDBContext dbContext, Measurement measurement, [Optional] ICollection<string> columnNames)
         {
             measurement.SectionInfo = measurement.SectionInfo ?? throw new Exception("Measurement does not have Section information");
 
- 
-            SectionInfo section = dbContext.Sections.Where(x => measurement.SectionInfo.Equals(x))
-                                                    .FirstOrDefault();
+
+            SectionInfo section = await dbContext.Sections.Where(x => measurement.SectionInfo.Equals(x))
+                                                    .FirstOrDefaultAsync().ConfigureAwait(true);
+                                                    
             if (section == null)
             {
                 return new HashSet<LithologicDescription>();
@@ -128,7 +142,15 @@ namespace DescLogicFramework
                     .ToHashSet();
         }
 
-        public static async Task<Measurement> GetDescriptionForMeasurementAsync(DescDBContext dbContext, Measurement measurement, [Optional] ICollection<string> columnNames)
+
+        /// <summary>
+        /// Attaches the corresponding descriptions for a measurement interval from the database to the measurement.
+        /// </summary>
+        /// <param name="dbContext">A DESCDatabase context</param>
+        /// <param name="measurement">A measurement interval</param>
+        /// <param name="columnNames">The description columns to return</param>
+        /// <returns></returns>
+        public static async Task<Measurement> MatchDescriptionForMeasurementAsync(DescDBContext dbContext, Measurement measurement, [Optional] ICollection<string> columnNames)
         {
             measurement.SectionInfo = measurement.SectionInfo ?? throw new Exception("Measurement does not have Section information");
 
@@ -165,7 +187,7 @@ namespace DescLogicFramework
                 userTasks.Add(GetDescriptionsWithinMeasurementIntervalAsync(dBContext, measurement, columnNames));
             }
 
-            return await Task.WhenAll(userTasks);
+            return await Task.WhenAll(userTasks).ConfigureAwait(true);
         }
 
         public static async Task<ICollection<Measurement>> GetDescriptionsForMeasurementAsync(DescDBContext dBContext, IEnumerable<Measurement> measurements, [Optional] ICollection<string> columnNames)
@@ -175,34 +197,11 @@ namespace DescLogicFramework
 
             foreach (var measurement in measurements)
             {
-                userTasks.Add(GetDescriptionForMeasurementAsync(dBContext, measurement, columnNames));
+                userTasks.Add(MatchDescriptionForMeasurementAsync(dBContext, measurement, columnNames));
             }
 
-            return await Task.WhenAll(userTasks);
+            return await Task.WhenAll(userTasks).ConfigureAwait(true);
         }
 
-
-       
-
-        /*
-        public static async Task<ICollection<LithologicDescription>[]> GetDescriptionsColumnValuesAsync(DescDBContext dbContext, IEnumerable<Measurement> measurements, ICollection<string> columns)
-        {
-            foreach (var measurement in measurements)
-            {
-                dbContext.LithologicDescriptions
-                        .Where(description => description.SectionInfo.Equals(measurement))
-                        .Include(x => x.DescriptionColumnValues
-                                      .Where(y => columns.Contains(y.ColumnName))
-                                      .Select(x => x)
-                                )
-                        .Select(x => x);
-
-                dbContext.find
-                                      
-    
-            }
-
-        }
-        */
     }
 }

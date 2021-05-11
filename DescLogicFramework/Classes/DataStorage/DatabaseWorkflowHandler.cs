@@ -14,6 +14,12 @@ namespace DescLogicFramework
     public static class DatabaseWorkflowHandler
     {
         #region DatabaseQuerying
+        /// <summary>
+        /// Asynchronously returns all of the SectionInfos from the database for a given list of expedition numbers
+        /// </summary>
+        /// <param name="dBContext">A DESCDatabase context</param>
+        /// <param name="expeditions">AN enumerable of expedition strings</param>
+        /// <returns>A collection of SectionInfos</returns>
         public static async Task<ICollection<SectionInfo>> GetAllSectionsFromDatabaseForExpeditionAsync(DescDBContext dBContext, IEnumerable<string> expeditions)
         {
             return await Task.Run(() => dBContext.Sections.Where(record => expeditions.Contains(record.Expedition))
@@ -25,9 +31,21 @@ namespace DescLogicFramework
                                      .ThenBy(x => x.Section).ToHashSet()).ConfigureAwait(false);
         }
 
-        public static async Task<SectionInfo> GetSectionInfoFromDatabaseForIntervalAsync(DescDBContext dbContext, Interval interval)
+        /// <summary>
+        /// Asynchronously gets a SectionInfo from the databse for a given measurement or lithologic description interval
+        /// </summary>
+        /// <param name="dbContext">A DESCDatabase context</param>
+        /// <param name="interval">An interval</param>
+        /// <returns>A single SectionInfo</returns>
+        public static async Task<SectionInfo> GetSectionInfoFromDatabaseForIntervalAsync(DescDBContext dbContext, SectionInfo section)
         {
-            return await Task.Run(() => dbContext.Sections.Where(record=>record.Equals(interval.SectionInfo)).FirstOrDefault()).ConfigureAwait(false);
+            return await dbContext.Sections.Where(record =>
+                              record.Expedition == section.Expedition &&
+                              record.Site == section.Site &&
+                              record.Hole == section.Hole &&
+                              record.Core == section.Core &&
+                              record.Type == section.Type &&
+                              record.Section == section.Section).FirstOrDefaultAsync().ConfigureAwait(true);
         }
 
         public static SectionInfo GetSectionInfoFromCollection(ICollection<SectionInfo> sections, SectionInfo section)
@@ -53,9 +71,11 @@ namespace DescLogicFramework
             return context;
         }
 
-        public static async Task<bool> DoesMeasurementExistInDatabase(DescDBContext dbContext, Measurement measurement)
+        public static async Task<bool> FindMeasurementInDatabase(DescDBContext dbContext, Measurement measurement)
         {
-  
+
+            //TODO: Throw an error if the measurement doesn't have a sectioninfo ID
+
             bool recordExists = await dbContext.MeasurementDescriptions
                    .Where(x => x.SectionInfo.ID == measurement.SectionInfo.ID)
                    .Where(x => x.TextID == measurement.TextID)
@@ -75,7 +95,7 @@ namespace DescLogicFramework
 
         }
 
-        public static async Task<bool> DoesLithologicDescriptionExistInDatabase(DescDBContext dBContext, LithologicDescription description)
+        public static async Task<bool> CheckForDescriptionAsync(DescDBContext dBContext, LithologicDescription description)
         {
             bool recordExists = await dBContext.LithologicDescriptions
                 .Where(x => x.SectionInfo.ID == description.SectionInfo.ID)
@@ -86,7 +106,7 @@ namespace DescLogicFramework
             return recordExists;
         }
 
-        public static async Task<bool> DoesSectionExistInDatabase(DescDBContext dBContext, SectionInfo section)
+        public static async Task<bool> CheckForSectionAsync(DescDBContext dBContext, SectionInfo section)
         {
             bool recordExists;
 
@@ -116,8 +136,7 @@ namespace DescLogicFramework
             return recordExists;
         }
 
-
-        public static async Task<int> GetIDForMeasurement(DescDBContext dbContext, Measurement measurement)
+        public static async Task<int> GetMeasurementIDAsync(DescDBContext dbContext, Measurement measurement)
         {
             var record = await dbContext.MeasurementDescriptions
           .Where(x => x.SectionInfo.ID == measurement.SectionInfo.ID)
@@ -185,7 +204,7 @@ namespace DescLogicFramework
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("{0}: Could not parse section info from datatable", fileName));
+                throw new Exception($"{fileName}: Could not parse section info from datatable");
             }
 
             return sectionCollection.Sections;
@@ -193,13 +212,24 @@ namespace DescLogicFramework
 
         public static async Task<bool> AddSectionsToDatabaseAsync(DescDBContext dBContext, ICollection<SectionInfo> sections)
         {
+
+            foreach (var section in sections)
+            {
+               var exists = await CheckForSectionAsync(dBContext, section).ConfigureAwait(true);
+                if (exists)
+                {
+                    sections.Remove(section);
+                }
+            }
+            
+
             try
             {
                 using (DescDBContext dbContext = new DescDBContext())
                 {
 
                     dbContext.AddRange(sections);
-                    await dbContext.SaveChangesAsync();
+                    await dbContext.SaveChangesAsync().ConfigureAwait(true);
                     return true;
                 }
             }

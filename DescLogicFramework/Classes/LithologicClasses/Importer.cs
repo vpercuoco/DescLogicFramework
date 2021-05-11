@@ -204,6 +204,57 @@ namespace DescLogicFramework
             }
         }
 
+        public static void AddSampleIDColumnToFileAndExport(string path, string newPath)
+        {
+
+
+            //Impor a file:
+            CSVReader reader = new CSVReader();
+            reader.ReadPath = path;
+
+            using (DataTable importTable = reader.Read())
+            {
+
+                IntervalHierarchyNames columnNames = new IntervalHierarchyNames()
+                {
+                    Expedition = "Exp",
+                    Site = "Site",
+                    Hole = "Hole",
+                    Core = "Core",
+                    Type = "Type",
+                    Section = "Section",
+                    Half = "A/W",
+                };
+
+                IODPDataTable iODPDataTable = new IODPDataTable(importTable, columnNames);
+                if (iODPDataTable.DataTable.Columns.Contains("Sample") || iODPDataTable.DataTable.Columns.Contains("Label ID"))
+                {
+                    return;
+                }
+
+                if (!iODPDataTable.DataTable.Columns.Contains("Sample"))
+                {
+                    iODPDataTable.DataTable.Columns.Add("Sample").SetOrdinal(1);
+                }
+
+                foreach (DataRow row in importTable.Rows)
+                {
+                    row.BeginEdit();
+                    row["Sample"] = $"{row[iODPDataTable.ExpeditionColumn]}" +
+                        $"-{row[iODPDataTable.SiteColumn]}{row[iODPDataTable.HoleColumn]}" +
+                        $"-{row[iODPDataTable.CoreColumn]}{row[iODPDataTable.TypeColumn]}" +
+                        $"-{row[iODPDataTable.SectionColumn]}" +
+                        $"-{row[columnNames.Half]}";
+                    row.EndEdit();
+                }
+
+                //Export File
+                Importer.ExportDataTableAsNewFile(newPath, importTable);
+            }
+
+
+        }
+
         #region FileChecks
 
         public static void CheckFile(IODPDataTable IODPDataTable)

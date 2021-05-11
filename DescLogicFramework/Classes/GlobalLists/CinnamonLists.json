@@ -7,8 +7,8 @@
   "Type": ["Type"],
   "Section": [ "Sect" ],
   "Offset": [ "Offset..cm.","Offset (cm)" ],
-  "TopOffset": [ "Top [cm]", "Top", "Top.offset.on.section..cm.", "Top[cm] [cm]", "Top[cm]", "Top(cm) [cm]", "Top(cm)", "Top (cm)", "Top Int", "Top offset on section (cm)" ],
-  "BottomOffset": [ "Bottom [cm]", "Bottom", "Bot.offset.on.section..cm.", "Bottom[cm] [cm]", "Bottom[cm]", "Bottom(cm) [cm]", "Bottom(cm)", "Bottom (cm)", "Bottom(cm) [cm]", "Bott Int", "Bot offset on section (cm)" ],
+  "TopOffset": [ "Top [cm]", "Top", "Top offset  [cm]", "Top offset [cm]", "Top.offset.on.section..cm.", "Top[cm] [cm]", "Top[cm]", "Top(cm) [cm]", "Top(cm)", "Top (cm)", "Top Int", "Top offset on section (cm)" ],
+  "BottomOffset": [ "Bottom [cm]", "Bottom", "Bottom offset  [cm]", "Bottom offset [cm]", "Bot.offset.on.section..cm.", "Bottom[cm] [cm]", "Bottom[cm]", "Bottom(cm) [cm]", "Bottom(cm)", "Bottom (cm)", "Bottom(cm) [cm]", "Bott Int", "Bot offset on section (cm)" ],
   "Depths": [
     "Top Depth [m]",
     "Bottom Depth [m]",
