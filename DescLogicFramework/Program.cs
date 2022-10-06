@@ -33,6 +33,10 @@ namespace DescLogicFramework
                 .CreateLogger();
 
 
+
+            //Test, edit to a new branch
+
+
             #region MergingCSVS
             /* 
              * 
@@ -95,7 +99,7 @@ namespace DescLogicFramework
             t.Wait();
             */
 
-            Workflow.AssociateSubIntervalsWithMeasurements();
+           // Workflow.AssociateSubIntervalsWithMeasurements();
 
 
 
@@ -103,7 +107,7 @@ namespace DescLogicFramework
 
             // Examples.GetMeasurementsWithDrillingDisturbances();
 
-            //Examples.DisplayMeasurementsForALithology("clast");
+            Examples.DisplayMeasurementsForALithology("clast");
 
             // Examples.AssociateSubIntervalsForMeasurements();
 
